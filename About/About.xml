@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Visual Progression: Look Picker</name>
+  <author>Groovy</author>
+  <packageId>groovy.visualprogression.lookpicker</packageId>
+  <modVersion>0.1</modVersion>
+  <url>https://github.com/ColbyHepworth/VisualProgressionLookPicker</url>
+  <supportedVersions>
+    <li>1.7</li>
+  </supportedVersions>
+  <description>Pick what your items look like and what they're called in each tech age, using the art of any mod you have installed. Items made in that age get your pick and keep it.
+
+Built on Visual Progression Framework. Something also has to raise your colony's tech level, such as Vanilla Factions Expanded - Tribals.</description>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+    <li>
+      <packageId>groovy.visualprogression.framework</packageId>
+      <displayName>Visual Progression Framework</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/3834891951</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>groovy.visualprogression.framework</li>
+  </loadAfter>
+</ModMetaData>
