@@ -7,6 +7,8 @@ in your mod list. Items made in that age get your pick and keep it, the way
 Requires Harmony and Visual Progression Framework. Something also has to raise your colony's tech level, such as
 Vanilla Factions Expanded - Tribals.
 
+[Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3836880283)
+
 ## Picking a look
 
 1. Open the mod settings and click an item under **All items**. The settings work from the main menu too. In dev mode,
