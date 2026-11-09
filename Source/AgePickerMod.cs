@@ -8,7 +8,7 @@ namespace VisualProgression.AgePicker
     /// <summary>Reads the player's picks, hooks the game's def loading where they become looks, and lists them in settings.</summary>
     public class AgePickerMod : Mod
     {
-        private readonly ChangedItemsList changedItems = new ChangedItemsList();
+        private readonly ItemList items = new ItemList();
 
         public AgePickerMod(ModContentPack content) : base(content)
         {
@@ -31,7 +31,7 @@ namespace VisualProgression.AgePicker
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
-            changedItems.Draw(new Rect(inRect.x, inRect.y, inRect.width, inRect.height - 40f));
+            items.Draw(new Rect(inRect.x, inRect.y, inRect.width, inRect.height - 40f));
             bool anyPicks = Settings.picks.Any(pick => pick != null);
             var export = new Rect(inRect.x, inRect.yMax - 32f, 180f, 32f);
             if (Widgets.ButtonText(export, "VPAP_ExportAsPack".Translate(), active: anyPicks) && anyPicks)
