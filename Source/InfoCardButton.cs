@@ -4,12 +4,19 @@ using Verse;
 
 namespace VisualProgression.AgePicker
 {
-    /// <summary>A "Pick looks" button at the bottom left of an item's info card, which opens the picker for its type.</summary>
+    /// <summary>
+    /// In dev mode, a "Pick looks" button at the bottom left of an item's info card, which opens the picker for its type.
+    /// Players pick from the mod settings.
+    /// </summary>
     [HarmonyPatch(typeof(Dialog_InfoCard), nameof(Dialog_InfoCard.DoWindowContents))]
     public static class InfoCardButton
     {
         private static void Postfix(Rect inRect, Thing ___thing, Def ___def)
         {
+            if (!Prefs.DevMode)
+            {
+                return;
+            }
             ThingDef item = ___thing?.def ?? ___def as ThingDef;
             if (item == null || !PickRules.CanOpenPicker(item))
             {

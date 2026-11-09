@@ -96,14 +96,10 @@ namespace VisualProgression.AgePicker
             return mod?.Find(path, folder);
         }
 
-        /// <summary>A texture from one mod only. The base game's art is in the game's Resources.</summary>
+        /// <summary>The mod's own picture at the path, even where another mod replaces it, or null if it can't be read.</summary>
         public static Texture2D TextureFrom(ModContentPack mod, string path)
         {
-            if (mod.IsCoreMod)
-            {
-                return Resources.Load<Texture2D>(TexturesFolder + path);
-            }
-            return mod.GetContentHolder<Texture2D>().Get(path);
+            return ModOwnTextures.From(mod, path, out _);
         }
 
         private static List<ModArt> Mods => mods ??= ReadAllMods();

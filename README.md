@@ -9,8 +9,8 @@ Vanilla Factions Expanded - Tribals.
 
 ## Picking a look
 
-1. Open the mod settings and click an item under **All items**, or click **Pick looks** on an item's info card. The
-   settings work from the main menu too.
+1. Open the mod settings and click an item under **All items**. The settings work from the main menu too. In dev mode,
+   an item's info card also has a **Pick looks** button.
 2. Choose an age on the left. Each age shows the item's name in it and, when the look comes from elsewhere, where:
    a later age's look, a pack, or the item's normal look.
 3. Click a picture to use it in that age: the item's normal art, art other mods have for it, or any mod's art below

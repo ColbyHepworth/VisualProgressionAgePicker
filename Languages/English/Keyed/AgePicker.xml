@@ -27,7 +27,7 @@
   <VPAP_RestartNote>Changes apply after a restart.</VPAP_RestartNote>
   <VPAP_AllItemsTab>All items ({0})</VPAP_AllItemsTab>
   <VPAP_ChangedTab>Changed ({0})</VPAP_ChangedTab>
-  <VPAP_NoChangedItems>No items changed yet. Find one under All items, or click Pick looks on its info card.</VPAP_NoChangedItems>
+  <VPAP_NoChangedItems>No items changed yet. Find one under All items.</VPAP_NoChangedItems>
   <VPAP_NoItemsMatch>No items match.</VPAP_NoItemsMatch>
   <VPAP_Reset>Reset</VPAP_Reset>
   <VPAP_MissingItem>{0} (not loaded)</VPAP_MissingItem>
