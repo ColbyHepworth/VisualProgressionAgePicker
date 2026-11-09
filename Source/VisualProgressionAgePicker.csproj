@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <AssemblyName>VisualProgressionLookPicker</AssemblyName>
-    <RootNamespace>VisualProgression.LookPicker</RootNamespace>
+    <AssemblyName>VisualProgressionAgePicker</AssemblyName>
+    <RootNamespace>VisualProgression.AgePicker</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>

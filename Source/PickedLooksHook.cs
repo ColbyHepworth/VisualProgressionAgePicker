@@ -3,7 +3,7 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// Turns the player's picks into looks while the game makes its own generated defs, so the item's ResolveReferences,
@@ -23,7 +23,7 @@ namespace VisualProgression.LookPicker
             }
             catch (Exception e)
             {
-                Log.Warning("[Look Picker] Couldn't make the picked looks, so items keep their normal looks. " +
+                Log.Warning("[Age Picker] Couldn't make the picked looks, so items keep their normal looks. " +
                     "Is Visual Progression Framework active and up to date? " + e);
             }
         }

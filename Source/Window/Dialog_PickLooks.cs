@@ -4,7 +4,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// Picks one item's art and name per age. The left column shows the selected age's look, the ages and the name; the
@@ -46,7 +46,7 @@ namespace VisualProgression.LookPicker
             grid = new ArtGrid(item);
             picksByAge = new Dictionary<TechLevel, Pick>();
             // The game keeps the last pick for an age, as PickedLooks does.
-            foreach (Pick pick in LookPickerMod.Settings.picks.Where(pick => pick?.item == item.defName))
+            foreach (Pick pick in AgePickerMod.Settings.picks.Where(pick => pick?.item == item.defName))
             {
                 picksByAge[pick.upToAge] = new Pick
                 {
@@ -84,22 +84,22 @@ namespace VisualProgression.LookPicker
             {
                 return;
             }
-            List<Pick> picks = LookPickerMod.Settings.picks;
+            List<Pick> picks = AgePickerMod.Settings.picks;
             picks.RemoveAll(pick => pick == null || pick.item == item.defName);
             foreach (Pick pick in picksByAge.Values)
             {
                 pick.name = pick.name?.Trim();
             }
             picks.AddRange(picksByAge.Values.Where(pick => !pick.IsEmpty).OrderBy(pick => pick.upToAge));
-            LookPickerMod.Settings.Write();
-            LookPickerMod.ChangedSinceLaunch = true;
+            AgePickerMod.Settings.Write();
+            AgePickerMod.ChangedSinceLaunch = true;
         }
 
         public override void DoWindowContents(Rect inRect)
         {
             Text.Font = GameFont.Medium;
             Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width - 30f, TitleHeight),
-                "VPLP_Title".Translate(PickedLooks.NormalLabelOf(item).CapitalizeFirst()));
+                "VPAP_Title".Translate(PickedLooks.NormalLabelOf(item).CapitalizeFirst()));
             Text.Font = GameFont.Small;
 
             var left = new Rect(inRect.x, inRect.y + TitleHeight, LeftWidth, inRect.height - TitleHeight);
@@ -155,10 +155,10 @@ namespace VisualProgression.LookPicker
             }
             y += 8f;
             DrawNameField(new Rect(inner.x, y, inner.width, RowHeight));
-            if (changed || LookPickerMod.ChangedSinceLaunch)
+            if (changed || AgePickerMod.ChangedSinceLaunch)
             {
                 GUI.color = ColorLibrary.Gold;
-                Widgets.Label(new Rect(inner.x, inner.yMax - 24f, inner.width, 24f), "VPLP_RestartNote".Translate());
+                Widgets.Label(new Rect(inner.x, inner.yMax - 24f, inner.width, 24f), "VPAP_RestartNote".Translate());
                 GUI.color = Color.white;
             }
         }
@@ -186,7 +186,7 @@ namespace VisualProgression.LookPicker
         private void DrawNameField(Rect rect)
         {
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(rect.x, rect.y, 50f, rect.height), "VPLP_Name".Translate());
+            Widgets.Label(new Rect(rect.x, rect.y, 50f, rect.height), "VPAP_Name".Translate());
             Text.Anchor = TextAnchor.UpperLeft;
             picksByAge.TryGetValue(selectedAge, out Pick pick);
             string current = pick?.name ?? "";
@@ -197,7 +197,7 @@ namespace VisualProgression.LookPicker
                 changed = true;
             }
             if (pick != null && !pick.IsEmpty &&
-                Widgets.ButtonText(new Rect(rect.x, rect.yMax + 8f, rect.width, RowHeight), "VPLP_ResetAge".Translate()))
+                Widgets.ButtonText(new Rect(rect.x, rect.yMax + 8f, rect.width, RowHeight), "VPAP_ResetAge".Translate()))
             {
                 picksByAge.Remove(selectedAge);
                 changed = true;
@@ -212,16 +212,16 @@ namespace VisualProgression.LookPicker
             if (artBlock != ArtBlock.None)
             {
                 string reason = artBlock == ArtBlock.Apparel
-                    ? "VPLP_NamesOnlyApparel".Translate()
-                    : "VPLP_NamesOnlyGraphic".Translate();
+                    ? "VPAP_NamesOnlyApparel".Translate()
+                    : "VPAP_NamesOnlyGraphic".Translate();
                 Widgets.Label(new Rect(rect.x, rect.y, rect.width, 60f), reason);
                 return;
             }
 
             if (usesFolder)
             {
-                DrawKindChip(new Rect(rect.x, rect.y, 190f, 28f), ArtKind.Folder, "VPLP_WholeFolders");
-                DrawKindChip(new Rect(rect.x + 200f, rect.y, 190f, 28f), ArtKind.Picture, "VPLP_SinglePictures");
+                DrawKindChip(new Rect(rect.x, rect.y, 190f, 28f), ArtKind.Folder, "VPAP_WholeFolders");
+                DrawKindChip(new Rect(rect.x + 200f, rect.y, 190f, 28f), ArtKind.Picture, "VPAP_SinglePictures");
             }
             search.OnGUI(new Rect(rect.xMax - 260f, rect.y + 2f, 260f, 24f), FindArt);
 
@@ -235,7 +235,7 @@ namespace VisualProgression.LookPicker
                 PutArt(clicked);
             }
             GUI.color = ColorLibrary.Grey;
-            Widgets.Label(bottom, "VPLP_Hint".Translate());
+            Widgets.Label(bottom, "VPAP_Hint".Translate());
             GUI.color = Color.white;
         }
 
@@ -323,7 +323,7 @@ namespace VisualProgression.LookPicker
             int rowIndex = AgeLookTable.RowFor(rowAges, (int)age);
             if (rowIndex < 0)
             {
-                return new AgeLook(NormalPictures(), PickedLooks.NormalLabelOf(item), "VPLP_SourceNormal".Translate());
+                return new AgeLook(NormalPictures(), PickedLooks.NormalLabelOf(item), "VPAP_SourceNormal".Translate());
             }
             var rowAge = (TechLevel)rowAges[rowIndex];
             List<Texture> art;
@@ -342,7 +342,7 @@ namespace VisualProgression.LookPicker
                     art = pick.normalArt ? NormalPictures() : PackPicturesCovering(age) ?? NormalPictures();
                 }
                 name = pick.name ?? PickedLooks.NormalLabelOf(item);
-                source = "VPLP_SourcePick".Translate();
+                source = "VPAP_SourcePick".Translate();
             }
             else
             {
@@ -351,11 +351,11 @@ namespace VisualProgression.LookPicker
                     ? StackPictures.Of(style.graphicData.Graphic)
                     : new List<Texture> { style.UIIcon };
                 name = style.overrideLabel ?? PickedLooks.NormalLabelOf(item);
-                source = "VPLP_SourcePack".Translate();
+                source = "VPAP_SourcePack".Translate();
             }
             if (rowAge != age)
             {
-                source = "VPLP_SameAs".Translate(rowAge.ToStringHuman().CapitalizeFirst());
+                source = "VPAP_SameAs".Translate(rowAge.ToStringHuman().CapitalizeFirst());
             }
             return new AgeLook(art, name, source);
         }

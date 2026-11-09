@@ -4,7 +4,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>The mod settings' list of items with picks, each with buttons to open its picker or reset it.</summary>
     public class ChangedItemsList
@@ -17,13 +17,13 @@ namespace VisualProgression.LookPicker
         public void Draw(Rect inRect)
         {
             float y = inRect.y;
-            Widgets.Label(new Rect(inRect.x, y, 300f, 24f), "VPLP_ChangedItems".Translate());
+            Widgets.Label(new Rect(inRect.x, y, 300f, 24f), "VPAP_ChangedItems".Translate());
             search.OnGUI(new Rect(inRect.xMax - 260f, y, 260f, 24f));
             y += 32f;
-            bool restartNote = LookPickerMod.ChangedSinceLaunch;
+            bool restartNote = AgePickerMod.ChangedSinceLaunch;
             float listBottom = restartNote ? inRect.yMax - 30f : inRect.yMax;
 
-            List<IGrouping<string, Pick>> items = LookPickerMod.Settings.picks
+            List<IGrouping<string, Pick>> items = AgePickerMod.Settings.picks
                 .Where(pick => pick?.item != null)
                 .GroupBy(pick => pick.item)
                 .Where(itemPicks => search.filter.Text.NullOrEmpty() || search.filter.Matches(LabelFor(itemPicks.Key)))
@@ -33,7 +33,7 @@ namespace VisualProgression.LookPicker
             if (items.Count == 0)
             {
                 GUI.color = ColorLibrary.Grey;
-                Widgets.Label(listRect, "VPLP_NoChangedItems".Translate());
+                Widgets.Label(listRect, "VPAP_NoChangedItems".Translate());
                 GUI.color = Color.white;
             }
             else
@@ -50,7 +50,7 @@ namespace VisualProgression.LookPicker
             if (restartNote)
             {
                 GUI.color = ColorLibrary.Gold;
-                Widgets.Label(new Rect(inRect.x, inRect.yMax - 24f, inRect.width, 24f), "VPLP_RestartNote".Translate());
+                Widgets.Label(new Rect(inRect.x, inRect.yMax - 24f, inRect.width, 24f), "VPAP_RestartNote".Translate());
                 GUI.color = Color.white;
             }
         }
@@ -72,14 +72,14 @@ namespace VisualProgression.LookPicker
             Text.Anchor = TextAnchor.UpperLeft;
 
             var reset = new Rect(rect.xMax - 110f, rect.y + 6f, 100f, 28f);
-            if (Widgets.ButtonText(reset, "VPLP_Reset".Translate()))
+            if (Widgets.ButtonText(reset, "VPAP_Reset".Translate()))
             {
-                LookPickerMod.Settings.picks.RemoveAll(pick => pick?.item == itemName);
-                LookPickerMod.Settings.Write();
-                LookPickerMod.ChangedSinceLaunch = true;
+                AgePickerMod.Settings.picks.RemoveAll(pick => pick?.item == itemName);
+                AgePickerMod.Settings.Write();
+                AgePickerMod.ChangedSinceLaunch = true;
             }
             var open = new Rect(reset.x - 110f, rect.y + 6f, 100f, 28f);
-            if (item != null && PickRules.CanOpenPicker(item) && Widgets.ButtonText(open, "VPLP_Open".Translate()))
+            if (item != null && PickRules.CanOpenPicker(item) && Widgets.ButtonText(open, "VPAP_Open".Translate()))
             {
                 Find.WindowStack.Add(new Dialog_PickLooks(item));
             }
@@ -88,7 +88,7 @@ namespace VisualProgression.LookPicker
         private static string LabelFor(string itemName)
         {
             ThingDef item = DefDatabase<ThingDef>.GetNamedSilentFail(itemName);
-            return item != null ? PickedLooks.NormalLabelOf(item) : "VPLP_MissingItem".Translate(itemName).ToString();
+            return item != null ? PickedLooks.NormalLabelOf(item) : "VPAP_MissingItem".Translate(itemName).ToString();
         }
     }
 }

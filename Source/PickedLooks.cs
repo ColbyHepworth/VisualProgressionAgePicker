@@ -4,7 +4,7 @@ using System.Linq;
 using RimWorld;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>Makes a look for each of the player's picks and gives it to the item, beside any looks from packs.</summary>
     public static class PickedLooks
@@ -36,7 +36,7 @@ namespace VisualProgression.LookPicker
             {
                 RememberNormalLabels();
             }
-            IEnumerable<Pick> picks = LookPickerMod.Settings.picks.Where(pick => pick != null);
+            IEnumerable<Pick> picks = AgePickerMod.Settings.picks.Where(pick => pick != null);
             foreach (IGrouping<string, Pick> itemPicks in picks.GroupBy(pick => pick.item ?? ""))
             {
                 try
@@ -109,7 +109,7 @@ namespace VisualProgression.LookPicker
                 return null;
             }
             // From the item and age only, so saves still find the look when its art changes.
-            string lookName = $"VPLookPicker_{item.defName}_{pick.upToAge}";
+            string lookName = $"VPAgePicker_{item.defName}_{pick.upToAge}";
             // A def reload keeps the look made at startup, so items made before and after it still stack.
             ThingStyleDef existing = hotReload ? DefDatabase<ThingStyleDef>.GetNamedSilentFail(lookName) : null;
             if (existing != null)
@@ -126,7 +126,7 @@ namespace VisualProgression.LookPicker
                 defName = lookName,
                 overrideLabel = pick.HasName ? pick.name : null,
                 graphicData = art,
-                modContentPack = LookPickerMod.ContentPack,
+                modContentPack = AgePickerMod.ContentPack,
             };
             if (packLook != null)
             {
@@ -226,7 +226,7 @@ namespace VisualProgression.LookPicker
 
         private static void Warn(string message)
         {
-            Log.Warning("[Look Picker] " + message);
+            Log.Warning("[Age Picker] " + message);
         }
     }
 }

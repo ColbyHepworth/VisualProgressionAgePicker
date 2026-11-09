@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// One scrolling grid of art: the item's own art first ("For this item", led by its normal art), then each mod's art
@@ -95,7 +95,7 @@ namespace VisualProgression.LookPicker
         /// <summary>The tooltip for an option: its mod and path.</summary>
         public static string TooltipFor(ArtOption option)
         {
-            string path = option.IsFolder ? option.Path + "/ (" + "VPLP_Folder".Translate() + ")" : option.Path;
+            string path = option.IsFolder ? option.Path + "/ (" + "VPAP_Folder".Translate() + ")" : option.Path;
             return option.Mod.Name + "\n" + path;
         }
 
@@ -105,7 +105,7 @@ namespace VisualProgression.LookPicker
         {
             if (option == null)
             {
-                string normal = "VPLP_NormalArt".Translate();
+                string normal = "VPAP_NormalArt".Translate();
                 return DrawTile(rect, normalPictures, normal, normal, normalSelected);
             }
             string name = option.IsFolder ? option.Name + " · " + option.PictureCount : option.Name;
@@ -148,7 +148,7 @@ namespace VisualProgression.LookPicker
         private void BuildRows(float tileRowHeight)
         {
             rows.Clear();
-            rows.Add(new GridRow { Heading = "VPLP_ForThisItem".Translate(), Height = HeadingHeight });
+            rows.Add(new GridRow { Heading = "VPAP_ForThisItem".Translate(), Height = HeadingHeight });
             var itemTiles = new List<ArtOption> { null };
             itemTiles.AddRange(itemArt);
             AddTileRows(itemTiles, tileRowHeight);
@@ -169,7 +169,7 @@ namespace VisualProgression.LookPicker
             AddTileRows(modTiles, tileRowHeight);
             if (found.Count == 0)
             {
-                rows.Add(new GridRow { Heading = "VPLP_NoArtFound".Translate(), Height = HeadingHeight });
+                rows.Add(new GridRow { Heading = "VPAP_NoArtFound".Translate(), Height = HeadingHeight });
             }
         }
 

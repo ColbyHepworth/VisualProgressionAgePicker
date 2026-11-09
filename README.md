@@ -1,4 +1,4 @@
-# Visual Progression: Look Picker
+# Visual Progression: Age Picker
 
 A RimWorld 1.7 mod. Pick what your items look like and what they're called in each tech age, using the art of any mod
 you have installed. Items made in that age get your pick and keep it, the way

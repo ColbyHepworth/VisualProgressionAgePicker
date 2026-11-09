@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>Which art to offer: single pictures, or folders of pictures for stack, random and meal art.</summary>
     public enum ArtKind
@@ -120,12 +120,12 @@ namespace VisualProgression.LookPicker
                 }
                 catch (Exception e)
                 {
-                    Log.Warning($"[Look Picker] Couldn't read the art of {pack.Name}, so it isn't offered: {e}");
+                    Log.Warning($"[Age Picker] Couldn't read the art of {pack.Name}, so it isn't offered: {e}");
                 }
             }
             if (Prefs.DevMode)
             {
-                Log.Message($"[Look Picker] Read {all.Sum(mod => mod.Pictures.Count)} pictures and " +
+                Log.Message($"[Age Picker] Read {all.Sum(mod => mod.Pictures.Count)} pictures and " +
                     $"{all.Sum(mod => mod.Folders.Count)} folders from {all.Count} mods in {timer.ElapsedMilliseconds} ms.");
             }
             return all;

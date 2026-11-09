@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>The player's picks, kept in the mod's settings file. They take effect on the next start.</summary>
-    public class LookPickerSettings : ModSettings
+    public class AgePickerSettings : ModSettings
     {
         /// <summary>The settings file's format, so a later version can read older files.</summary>
         public int version = 1;

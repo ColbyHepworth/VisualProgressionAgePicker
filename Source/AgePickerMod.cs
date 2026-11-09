@@ -2,21 +2,21 @@ using HarmonyLib;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>Reads the player's picks, hooks the game's def loading where they become looks, and lists them in settings.</summary>
-    public class LookPickerMod : Mod
+    public class AgePickerMod : Mod
     {
         private readonly ChangedItemsList changedItems = new ChangedItemsList();
 
-        public LookPickerMod(ModContentPack content) : base(content)
+        public AgePickerMod(ModContentPack content) : base(content)
         {
             ContentPack = content;
-            Settings = GetSettings<LookPickerSettings>();
-            new Harmony("groovy.visualprogression.lookpicker").PatchAll();
+            Settings = GetSettings<AgePickerSettings>();
+            new Harmony("groovy.visualprogression.agepicker").PatchAll();
         }
 
-        public static LookPickerSettings Settings { get; private set; }
+        public static AgePickerSettings Settings { get; private set; }
 
         public static ModContentPack ContentPack { get; private set; }
 

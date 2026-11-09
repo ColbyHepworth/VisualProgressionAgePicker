@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>Why a pick's art can't be used on an item.</summary>
     public enum ArtBlock

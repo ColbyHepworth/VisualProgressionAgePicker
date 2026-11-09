@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>One picture, or one folder of pictures, a mod has that a pick can use.</summary>
     public sealed class ArtOption

@@ -1,7 +1,7 @@
 using RimWorld;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// A player's look for one item up to one age: art from a chosen mod, a name, or both. Like a pack's row, it covers

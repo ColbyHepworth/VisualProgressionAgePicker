@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <VPAP_PickLooks>Pick looks</VPAP_PickLooks>
+  <VPAP_Title>Looks for {0}</VPAP_Title>
+  <VPAP_Hint>Choose an age on the left, then click a picture to use it there. A look also covers the earlier ages until you give them their own.</VPAP_Hint>
+  <VPAP_NamesOnlyGraphic>This item's art can't come from another mod. Only single, stack and random art can. You can still name it for each age.</VPAP_NamesOnlyGraphic>
+  <VPAP_NamesOnlyApparel>A pick can't change worn art, so apparel takes names only.</VPAP_NamesOnlyApparel>
+  <VPAP_NormalArt>Normal art</VPAP_NormalArt>
+  <VPAP_ForThisItem>For this item</VPAP_ForThisItem>
+  <VPAP_WholeFolders>Whole folders</VPAP_WholeFolders>
+  <VPAP_SinglePictures>Single pictures</VPAP_SinglePictures>
+  <VPAP_NoArtFound>No art matches.</VPAP_NoArtFound>
+  <VPAP_Folder>folder</VPAP_Folder>
+  <VPAP_PictureN>Picture {0}</VPAP_PictureN>
+  <VPAP_StackOne>Stack of 1</VPAP_StackOne>
+  <VPAP_StackMore>More than 1</VPAP_StackMore>
+  <VPAP_StackPartial>Partial stack</VPAP_StackPartial>
+  <VPAP_StackFull>Full stack</VPAP_StackFull>
+  <VPAP_MealMixed>Mixed</VPAP_MealMixed>
+  <VPAP_MealMeat>Meat</VPAP_MealMeat>
+  <VPAP_MealVegetarian>Vegetarian</VPAP_MealVegetarian>
+  <VPAP_Name>Name</VPAP_Name>
+  <VPAP_ResetAge>Reset this age</VPAP_ResetAge>
+  <VPAP_SameAs>Same as {0}</VPAP_SameAs>
+  <VPAP_SourcePick>Your pick</VPAP_SourcePick>
+  <VPAP_SourcePack>From a pack</VPAP_SourcePack>
+  <VPAP_SourceNormal>Normal</VPAP_SourceNormal>
+  <VPAP_RestartNote>Changes apply after a restart.</VPAP_RestartNote>
+  <VPAP_ChangedItems>Items you've changed</VPAP_ChangedItems>
+  <VPAP_NoChangedItems>No items changed yet. Open an item's info card and click Pick looks.</VPAP_NoChangedItems>
+  <VPAP_Open>Open</VPAP_Open>
+  <VPAP_Reset>Reset</VPAP_Reset>
+  <VPAP_MissingItem>{0} (not loaded)</VPAP_MissingItem>
+</LanguageData>

@@ -5,7 +5,7 @@ using HarmonyLib;
 using UnityEngine;
 using Verse;
 
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// Shows stack and random art as the set of pictures it is: a strip of three in a tile, and every picture with when
@@ -137,14 +137,14 @@ namespace VisualProgression.LookPicker
             Type kind = item.graphicData?.graphicClass;
             if (kind != null && typeof(Graphic_Random).IsAssignableFrom(kind))
             {
-                return "VPLP_PictureN".Translate(index + 1);
+                return "VPAP_PictureN".Translate(index + 1);
             }
             if (kind != null && typeof(Graphic_MealVariants).IsAssignableFrom(kind) && count % 3 == 0)
             {
                 int sizes = count / 3;
-                string group = index / sizes == 0 ? "VPLP_MealMixed".Translate()
-                    : index / sizes == 1 ? "VPLP_MealMeat".Translate()
-                    : "VPLP_MealVegetarian".Translate();
+                string group = index / sizes == 0 ? "VPAP_MealMixed".Translate()
+                    : index / sizes == 1 ? "VPAP_MealMeat".Translate()
+                    : "VPAP_MealVegetarian".Translate();
                 return sizes == 1 ? group : group + ", " + StackLabel(index % sizes, sizes);
             }
             return StackLabel(index, count);
@@ -154,13 +154,13 @@ namespace VisualProgression.LookPicker
         {
             if (index == 0)
             {
-                return "VPLP_StackOne".Translate();
+                return "VPAP_StackOne".Translate();
             }
             if (count == 2)
             {
-                return "VPLP_StackMore".Translate();
+                return "VPAP_StackMore".Translate();
             }
-            return index == count - 1 ? "VPLP_StackFull".Translate() : "VPLP_StackPartial".Translate();
+            return index == count - 1 ? "VPAP_StackFull".Translate() : "VPAP_StackPartial".Translate();
         }
     }
 }

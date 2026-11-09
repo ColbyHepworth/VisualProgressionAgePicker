@@ -1,4 +1,4 @@
-namespace VisualProgression.LookPicker
+namespace VisualProgression.AgePicker
 {
     /// <summary>One of an item's looks: the look it's made with while the colony's age is at or below UpToAge.</summary>
     public readonly struct AgeRow
