@@ -21,10 +21,9 @@
   <VPAP_MealVegetarian>Vegetarian</VPAP_MealVegetarian>
   <VPAP_Name>Name</VPAP_Name>
   <VPAP_ResetAge>Reset this age</VPAP_ResetAge>
-  <VPAP_SameAs>Same as {0}</VPAP_SameAs>
-  <VPAP_SourcePick>Your pick</VPAP_SourcePick>
-  <VPAP_SourcePack>From a pack</VPAP_SourcePack>
-  <VPAP_SourceNormal>Normal</VPAP_SourceNormal>
+  <VPAP_NameSameAs>{0} (same as {1})</VPAP_NameSameAs>
+  <VPAP_NameFromPack>{0} (from a pack)</VPAP_NameFromPack>
+  <VPAP_NameNormal>{0} (normal)</VPAP_NameNormal>
   <VPAP_RestartNote>Changes apply after a restart.</VPAP_RestartNote>
   <VPAP_ChangedItems>Items you've changed</VPAP_ChangedItems>
   <VPAP_NoChangedItems>No items changed yet. Open an item's info card and click Pick looks.</VPAP_NoChangedItems>

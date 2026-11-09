@@ -10,7 +10,8 @@ Vanilla Factions Expanded - Tribals.
 ## Picking a look
 
 1. Open an item's info card and click **Pick looks**.
-2. Choose an age on the left.
+2. Choose an age on the left. Each age shows the item's name in it and, when the look comes from elsewhere, where:
+   a later age's look, a pack, or the item's normal look.
 3. Click a picture to use it in that age: the item's normal art, art other mods have for it, or any mod's art below
    that. Items with stack art, like meals, choose between whole folders, which change picture as the stack
    grows, and single pictures, which show at every stack size. Hover a folder to see when each picture is used.

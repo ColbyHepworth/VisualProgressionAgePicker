@@ -171,11 +171,21 @@ namespace VisualProgression.AgePicker
             {
                 Widgets.DrawTextureFitted(new Rect(rect.x + 4f, rect.y + 4f, 32f, 32f), look.Pictures[0], 1f);
             }
+            GUI.color = AgeColors.For(age);
             Widgets.Label(new Rect(rect.x + 42f, rect.y + 2f, rect.width - 46f, 22f), age.ToStringHuman().CapitalizeFirst());
-            Text.Font = GameFont.Tiny;
-            GUI.color = ColorLibrary.Grey;
-            Widgets.Label(new Rect(rect.x + 42f, rect.y + 21f, rect.width - 46f, 18f), look.Source);
             GUI.color = Color.white;
+            Text.Font = GameFont.Tiny;
+            var nameLine = new Rect(rect.x + 42f, rect.y + 21f, rect.width - 46f, 18f);
+            string plain = look.NameLine(age, coloured: false);
+            if (Text.CalcSize(plain).x <= nameLine.width)
+            {
+                Widgets.Label(nameLine, look.NameLine(age, coloured: true));
+            }
+            else
+            {
+                Widgets.Label(nameLine, plain.Truncate(nameLine.width));
+                TooltipHandler.TipRegion(rect, plain);
+            }
             Text.Font = GameFont.Small;
             if (Widgets.ButtonInvisible(rect))
             {
@@ -323,12 +333,12 @@ namespace VisualProgression.AgePicker
             int rowIndex = AgeLookTable.RowFor(rowAges, (int)age);
             if (rowIndex < 0)
             {
-                return new AgeLook(NormalPictures(), PickedLooks.NormalLabelOf(item), "VPAP_SourceNormal".Translate());
+                return new AgeLook(NormalPictures(), PickedLooks.NormalLabelOf(item), LookSource.Normal, age);
             }
             var rowAge = (TechLevel)rowAges[rowIndex];
             List<Texture> art;
             string name;
-            string source;
+            LookSource source;
             if (rowIndex < picks.Count)
             {
                 Pick pick = picks[rowIndex];
@@ -342,7 +352,7 @@ namespace VisualProgression.AgePicker
                     art = pick.normalArt ? NormalPictures() : PackPicturesCovering(age) ?? NormalPictures();
                 }
                 name = pick.name ?? PickedLooks.NormalLabelOf(item);
-                source = "VPAP_SourcePick".Translate();
+                source = LookSource.Pick;
             }
             else
             {
@@ -351,13 +361,9 @@ namespace VisualProgression.AgePicker
                     ? StackPictures.Of(style.graphicData.Graphic)
                     : new List<Texture> { style.UIIcon };
                 name = style.overrideLabel ?? PickedLooks.NormalLabelOf(item);
-                source = "VPAP_SourcePack".Translate();
+                source = LookSource.Pack;
             }
-            if (rowAge != age)
-            {
-                source = "VPAP_SameAs".Translate(rowAge.ToStringHuman().CapitalizeFirst());
-            }
-            return new AgeLook(art, name, source);
+            return new AgeLook(art, name, source, rowAge);
         }
 
         // The pictures of the pack's look covering the age (the normal art for a look with only a name), or null when no
@@ -390,18 +396,49 @@ namespace VisualProgression.AgePicker
             return StackPictures.Of(item.graphicData.Graphic);
         }
 
+        private enum LookSource
+        {
+            Pick,
+            Pack,
+            Normal,
+        }
+
         private readonly struct AgeLook
         {
-            public AgeLook(List<Texture> pictures, string name, string source)
+            public AgeLook(List<Texture> pictures, string name, LookSource source, TechLevel rowAge)
             {
                 Pictures = (pictures ?? new List<Texture>()).Where(picture => picture != null).ToList();
                 Name = name ?? "";
                 Source = source;
+                RowAge = rowAge;
             }
 
             public List<Texture> Pictures { get; }
             public string Name { get; }
-            public string Source { get; }
+            public LookSource Source { get; }
+
+            /// <summary>The age of the row the look comes from, later than the age shown when that row covers it.</summary>
+            public TechLevel RowAge { get; }
+
+            /// <summary>
+            /// The item's name in the age, with where it comes from when that isn't the age's own pick, such as
+            /// "Hole (same as Medieval)".
+            /// </summary>
+            public string NameLine(TechLevel age, bool coloured)
+            {
+                string name = Name.CapitalizeFirst();
+                // Resolve keeps the colour tags, which turning a TaggedString into a string strips.
+                if (Source == LookSource.Normal)
+                {
+                    return "VPAP_NameNormal".Translate(name).Resolve();
+                }
+                if (RowAge != age)
+                {
+                    string rowAge = coloured ? AgeColors.Coloured(RowAge) : RowAge.ToStringHuman().CapitalizeFirst();
+                    return "VPAP_NameSameAs".Translate(name, rowAge).Resolve();
+                }
+                return Source == LookSource.Pack ? "VPAP_NameFromPack".Translate(name).Resolve() : name;
+            }
         }
     }
 }
