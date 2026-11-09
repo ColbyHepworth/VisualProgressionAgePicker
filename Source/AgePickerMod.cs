@@ -1,3 +1,4 @@
+using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 using Verse;
@@ -30,7 +31,14 @@ namespace VisualProgression.AgePicker
 
         public override void DoSettingsWindowContents(Rect inRect)
         {
-            changedItems.Draw(inRect);
+            changedItems.Draw(new Rect(inRect.x, inRect.y, inRect.width, inRect.height - 40f));
+            bool anyPicks = Settings.picks.Any(pick => pick != null);
+            var export = new Rect(inRect.x, inRect.yMax - 32f, 180f, 32f);
+            if (Widgets.ButtonText(export, "VPAP_ExportAsPack".Translate(), active: anyPicks) && anyPicks)
+            {
+                Find.WindowStack.Add(new Dialog_ExportPack());
+            }
+            TooltipHandler.TipRegion(export, "VPAP_ExportAsPackTip".Translate());
         }
     }
 }

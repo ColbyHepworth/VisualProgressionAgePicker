@@ -22,6 +22,19 @@ The mod settings list the items you've changed, to open again or reset.
 
 Apparel, and items whose art has four directions, take names only.
 
+## Sharing your picks as a pack
+
+Click **Export as pack** in the mod settings, give the pack a name and an author, and click **Export**. It's written to
+your Mods folder as a pack like any other Visual Progression pack, to keep, share or publish. After a restart it's in
+the mod list.
+
+The pack holds no art. Art from another mod stays in that mod, and the pack lists that mod as a requirement. A rename
+that keeps another pack's look needs that pack too. A look with the item's normal art shows each player's own normal
+art, retextures included. Looks for items from other mods are skipped when those mods aren't active. Exporting again
+under the same name replaces the pack, and a name that's already another mod's folder is refused.
+
+Your picks stay after an export, and they win over the pack, so nothing changes in game until you reset them.
+
 ## Status
 
 Work in progress, not on the Workshop yet.

@@ -64,8 +64,7 @@ namespace VisualProgression.AgePicker
                 return;
             }
             var picked = new List<AgeLookRow>();
-            // The game keeps one def per name, so a second pick for the same age replaces the first.
-            foreach (Pick pick in itemPicks.GroupBy(pick => pick.upToAge).Select(sameAge => sameAge.Last()))
+            foreach (Pick pick in LastPickPerAge(itemPicks))
             {
                 ThingStyleDef look = LookFor(item, pick, hotReload);
                 if (look != null)
@@ -79,34 +78,59 @@ namespace VisualProgression.AgePicker
             }
         }
 
-        private static ThingStyleDef LookFor(ThingDef item, Pick pick, bool hotReload)
+        /// <summary>The picks that count for one item: the last one for each age, since a later pick replaces an earlier one.</summary>
+        public static IEnumerable<Pick> LastPickPerAge(IEnumerable<Pick> itemPicks)
         {
-            string pickName = $"The pick for {item.defName} up to {pick.upToAge}";
+            return itemPicks.GroupBy(pick => pick.upToAge).Select(sameAge => sameAge.Last());
+        }
+
+        /// <summary>Why the pick can't become a look on the item, such as "has no age", or null when it can.</summary>
+        public static string ProblemWith(ThingDef item, Pick pick)
+        {
             if (pick.upToAge == TechLevel.Undefined)
             {
-                Warn($"A pick for {item.defName} has no age, so it's skipped.");
-                return null;
+                return "has no age";
             }
             if (pick.IsEmpty)
             {
-                Warn($"{pickName} has no art and no name, so it's skipped.");
+                return "has no art and no name";
+            }
+            ArtBlock artBlock = PickRules.ArtBlockFor(item);
+            if (pick.HasArt && artBlock == ArtBlock.GraphicKind)
+            {
+                return $"names art, but {item.defName}'s art is a {item.graphicData.graphicClass?.Name}, and only single, " +
+                    "stack-count and random art can come from a chosen mod";
+            }
+            if (pick.HasArt && artBlock == ArtBlock.Apparel)
+            {
+                return $"names art, but {item.defName} is apparel, and a pick can't change worn art";
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The graphic data of the pick's look: art from the chosen mod, the item's own art, or for a pick without art the
+        /// art the age had. In that last case the pack's look covering the age is given too, since the pick keeps it.
+        /// </summary>
+        public static GraphicData ArtFor(ThingDef item, Pick pick, IReadOnlyList<AgeLookRow> packRows,
+            out ThingStyleDef keptPackLook)
+        {
+            keptPackLook = pick.HasArt || pick.normalArt ? null : PackLookCovering(packRows, pick.upToAge);
+            return pick.HasArt ? ArtFromMod(item, pick) : CopyOf(keptPackLook?.graphicData ?? item.graphicData);
+        }
+
+        private static ThingStyleDef LookFor(ThingDef item, Pick pick, bool hotReload)
+        {
+            string pickName = $"The pick for {item.defName} up to {pick.upToAge}";
+            string problem = ProblemWith(item, pick);
+            if (problem != null)
+            {
+                Warn($"{pickName} {problem}, so it's skipped.");
                 return null;
             }
             if (!pick.HasArt && !pick.artPath.NullOrEmpty())
             {
                 Warn($"{pickName} has an art path but no mod to take it from, so it keeps the item's art.");
-            }
-            ArtBlock artBlock = PickRules.ArtBlockFor(item);
-            if (pick.HasArt && artBlock == ArtBlock.GraphicKind)
-            {
-                Warn($"{pickName} names art, but {item.defName}'s art is a {item.graphicData.graphicClass?.Name}, and " +
-                    "only single, stack-count and random art can come from a chosen mod. It's skipped.");
-                return null;
-            }
-            if (pick.HasArt && artBlock == ArtBlock.Apparel)
-            {
-                Warn($"{pickName} names art, but {item.defName} is apparel, and a pick can't change worn art. It's skipped.");
-                return null;
             }
             // From the item and age only, so saves still find the look when its art changes.
             string lookName = $"VPAgePicker_{item.defName}_{pick.upToAge}";
@@ -116,11 +140,9 @@ namespace VisualProgression.AgePicker
             {
                 return existing;
             }
-            // A pick without art keeps the look the age had: a pack's look covering it, or the item's own art.
-            ThingStyleDef packLook = pick.HasArt || pick.normalArt ? null : PackLookCovering(item, pick.upToAge);
-            GraphicData art = pick.HasArt
-                ? ArtFromMod(item, pick)
-                : CopyOf(packLook?.graphicData ?? item.graphicData);
+            // The packs' looks only: the picks join the item's list after all its looks are made.
+            List<AgeLookRow> packRows = item.GetCompProperties<CompProperties_AgeLook>()?.looks;
+            GraphicData art = ArtFor(item, pick, packRows, out ThingStyleDef packLook);
             var look = new ThingStyleDef
             {
                 defName = lookName,
@@ -166,11 +188,9 @@ namespace VisualProgression.AgePicker
         }
 
         // The pack's look that covers the age, or null when no pack's look does.
-        private static ThingStyleDef PackLookCovering(ThingDef item, TechLevel age)
+        private static ThingStyleDef PackLookCovering(IReadOnlyList<AgeLookRow> packRows, TechLevel age)
         {
-            List<AgeLookRow> rows = item.GetCompProperties<CompProperties_AgeLook>()?.looks?
-                .Where(row => row?.style != null)
-                .ToList();
+            List<AgeLookRow> rows = packRows?.Where(row => row?.style != null).ToList();
             if (rows == null)
             {
                 return null;

@@ -31,4 +31,24 @@
   <VPAP_Open>Open</VPAP_Open>
   <VPAP_Reset>Reset</VPAP_Reset>
   <VPAP_MissingItem>{0} (not loaded)</VPAP_MissingItem>
+  <VPAP_ExportAsPack>Export as pack</VPAP_ExportAsPack>
+  <VPAP_ExportAsPackTip>Write your picks as a pack in your Mods folder, to keep or share. Art from other mods stays in those mods, and the pack lists them as requirements.</VPAP_ExportAsPackTip>
+  <VPAP_ExportTitle>Export as pack</VPAP_ExportTitle>
+  <VPAP_PackName>Pack name</VPAP_PackName>
+  <VPAP_Author>Author</VPAP_Author>
+  <VPAP_WritesTo>Writes to {0}</VPAP_WritesTo>
+  <VPAP_NameTheExport>Give the pack a name and an author.</VPAP_NameTheExport>
+  <VPAP_Export>Export</VPAP_Export>
+  <VPAP_ReplaceExport>Your Mods folder already has a folder named {0}. Replace the pack's files in it?</VPAP_ReplaceExport>
+  <VPAP_ExportFailed>Couldn't write to {0}: {1}</VPAP_ExportFailed>
+  <VPAP_Exported>Exported the pack {0}.</VPAP_Exported>
+  <VPAP_ExportDone>The pack is in {0}.</VPAP_ExportDone>
+  <VPAP_ExportNeeds>It needs: {0}.</VPAP_ExportNeeds>
+  <VPAP_ExportLeftOut>Left out:</VPAP_ExportLeftOut>
+  <VPAP_ExportAfter>Restart to see it in the mod list. Your picks stay, and they win over the pack, so nothing changes until you reset them.</VPAP_ExportAfter>
+  <VPAP_LeftOutItem>{0}: not loaded, or can't take a look</VPAP_LeftOutItem>
+  <VPAP_UnwritableArt>its art uses {0}, which the export can't write yet</VPAP_UnwritableArt>
+  <VPAP_BadPackName>Give the pack a name with letters or digits in it.</VPAP_BadPackName>
+  <VPAP_FolderTaken>Your Mods folder already has a different mod in {0}. Choose another name.</VPAP_FolderTaken>
+  <VPAP_PackDescription>Item looks made with {0}.</VPAP_PackDescription>
 </LanguageData>
