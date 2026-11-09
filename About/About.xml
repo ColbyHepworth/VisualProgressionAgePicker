@@ -3,14 +3,16 @@
   <name>Visual Progression: Age Picker</name>
   <author>Groovy</author>
   <packageId>groovy.visualprogression.agepicker</packageId>
-  <modVersion>0.1</modVersion>
+  <modVersion>1.0</modVersion>
   <url>https://github.com/ColbyHepworth/VisualProgressionAgePicker</url>
   <supportedVersions>
     <li>1.7</li>
   </supportedVersions>
-  <description>Pick what your items look like and what they're called in each tech age, using the art of any mod you have installed. Items made in that age get your pick and keep it.
+  <description>Pick what your items look like and what they're called in each tech age, using the art of any mod in your mod list. Items made in that age get your pick and keep it. Pick in the mod settings. Changes apply after a restart.
 
-Built on Visual Progression Framework. Something also has to raise your colony's tech level, such as Vanilla Factions Expanded - Tribals.</description>
+Built on Visual Progression Framework. Something also has to raise your colony's tech level, such as Vanilla Factions Expanded - Tribals.
+
+Preview and screenshot art: Medieval Overhaul, Vanilla Cooking Expanded and RimWorld.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

@@ -1,7 +1,7 @@
 # Visual Progression: Age Picker
 
 A RimWorld 1.7 mod. Pick what your items look like and what they're called in each tech age, using the art of any mod
-you have installed. Items made in that age get your pick and keep it, the way
+in your mod list. Items made in that age get your pick and keep it, the way
 [Visual Progression Framework](https://github.com/ColbyHepworth/VisualProgressionFramework) packs work.
 
 Requires Harmony and Visual Progression Framework. Something also has to raise your colony's tech level, such as
@@ -23,6 +23,9 @@ Vanilla Factions Expanded - Tribals.
 Search the mod settings by an item's name or its mod's name. **Changed** lists the items you've picked looks for, with
 their ages and a button to reset them.
 
+Resetting a pick, or removing the mod, is safe for your save. Items made with that pick go back to their normal art,
+and the game logs an error for each of them when the save loads.
+
 Apparel, and items whose art has four directions, take names only.
 
 ## Sharing your picks as a pack
@@ -38,10 +41,6 @@ under the same name replaces the pack, and a name that's already another mod's f
 
 Your picks stay after an export, and they win over the pack, so nothing changes in game until you reset them.
 
-## Status
-
-Work in progress, not on the Workshop yet.
-
 ## How it works
 
 Each pick becomes a look while the game loads its defs, the same kind of look a framework pack adds in XML. A pick
@@ -53,4 +52,5 @@ differently from the item's own folder, the missing ones show the normal art.
 
 ## License
 
-MIT
+MIT. The preview image and the images in `Workshop/` show art from Medieval Overhaul, Vanilla Cooking Expanded and
+RimWorld, which belongs to their authors and isn't covered by this license.
