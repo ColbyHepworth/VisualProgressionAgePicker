@@ -23,9 +23,18 @@ namespace VisualProgression.LookPicker
         /// <summary>The item's name at those ages. Empty keeps its name.</summary>
         public string name;
 
+        /// <summary>True when the art is one picture on an item whose art is a folder, so it shows at every stack size.</summary>
+        public bool singlePicture;
+
+        /// <summary>True when the age uses the item's normal art even where a pack's look would cover it.</summary>
+        public bool normalArt;
+
         public bool HasArt => !artMod.NullOrEmpty();
 
         public bool HasName => !name.NullOrEmpty();
+
+        /// <summary>True when the pick changes nothing: no art, no name, and not asking for the normal art.</summary>
+        public bool IsEmpty => !HasArt && !HasName && !normalArt;
 
         public void ExposeData()
         {
@@ -34,6 +43,8 @@ namespace VisualProgression.LookPicker
             Scribe_Values.Look(ref artMod, "artMod");
             Scribe_Values.Look(ref artPath, "artPath");
             Scribe_Values.Look(ref name, "name");
+            Scribe_Values.Look(ref singlePicture, "singlePicture");
+            Scribe_Values.Look(ref normalArt, "normalArt");
         }
     }
 }

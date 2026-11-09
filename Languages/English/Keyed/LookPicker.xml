@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <VPLP_PickLooks>Pick looks</VPLP_PickLooks>
+  <VPLP_Title>Looks for {0}</VPLP_Title>
+  <VPLP_Hint>Choose an age on the left, then click a picture to use it there. A look also covers the earlier ages until you give them their own.</VPLP_Hint>
+  <VPLP_NamesOnlyGraphic>This item's art can't come from another mod. Only single, stack and random art can. You can still name it for each age.</VPLP_NamesOnlyGraphic>
+  <VPLP_NamesOnlyApparel>A pick can't change worn art, so apparel takes names only.</VPLP_NamesOnlyApparel>
+  <VPLP_NormalArt>Normal art</VPLP_NormalArt>
+  <VPLP_ForThisItem>For this item</VPLP_ForThisItem>
+  <VPLP_WholeFolders>Whole folders</VPLP_WholeFolders>
+  <VPLP_SinglePictures>Single pictures</VPLP_SinglePictures>
+  <VPLP_NoArtFound>No art matches.</VPLP_NoArtFound>
+  <VPLP_Folder>folder</VPLP_Folder>
+  <VPLP_PictureN>Picture {0}</VPLP_PictureN>
+  <VPLP_StackOne>Stack of 1</VPLP_StackOne>
+  <VPLP_StackMore>More than 1</VPLP_StackMore>
+  <VPLP_StackPartial>Partial stack</VPLP_StackPartial>
+  <VPLP_StackFull>Full stack</VPLP_StackFull>
+  <VPLP_MealMixed>Mixed</VPLP_MealMixed>
+  <VPLP_MealMeat>Meat</VPLP_MealMeat>
+  <VPLP_MealVegetarian>Vegetarian</VPLP_MealVegetarian>
+  <VPLP_Name>Name</VPLP_Name>
+  <VPLP_ResetAge>Reset this age</VPLP_ResetAge>
+  <VPLP_SameAs>Same as {0}</VPLP_SameAs>
+  <VPLP_SourcePick>Your pick</VPLP_SourcePick>
+  <VPLP_SourcePack>From a pack</VPLP_SourcePack>
+  <VPLP_SourceNormal>Normal</VPLP_SourceNormal>
+  <VPLP_RestartNote>Changes apply after a restart.</VPLP_RestartNote>
+  <VPLP_ChangedItems>Items you've changed</VPLP_ChangedItems>
+  <VPLP_NoChangedItems>No items changed yet. Open an item's info card and click Pick looks.</VPLP_NoChangedItems>
+  <VPLP_Open>Open</VPLP_Open>
+  <VPLP_Reset>Reset</VPLP_Reset>
+  <VPLP_MissingItem>{0} (not loaded)</VPLP_MissingItem>
+</LanguageData>

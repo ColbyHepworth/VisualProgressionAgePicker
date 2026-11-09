@@ -9,15 +9,33 @@ namespace VisualProgression.LookPicker
     /// <summary>Makes a look for each of the player's picks and gives it to the item, beside any looks from packs.</summary>
     public static class PickedLooks
     {
-        // The graphics GraphicData_FromMod can draw from a chosen mod, and the ones built on them, like vanilla meals'.
-        private static readonly Type[] ArtFromModGraphics =
+        private static readonly Dictionary<ThingDef, List<AgeLookRow>> packRowsByItem =
+            new Dictionary<ThingDef, List<AgeLookRow>>();
+        private static readonly Dictionary<ThingDef, string> normalLabels = new Dictionary<ThingDef, string>();
+
+        /// <summary>The looks packs gave the item, before the player's picks replaced any of them.</summary>
+        public static IReadOnlyList<AgeLookRow> PackRowsFor(ThingDef item)
         {
-            typeof(Graphic_Single), typeof(Graphic_StackCount), typeof(Graphic_Random),
-        };
+            if (packRowsByItem.TryGetValue(item, out List<AgeLookRow> rows))
+            {
+                return rows;
+            }
+            return item.GetCompProperties<CompProperties_AgeLook>()?.looks ?? new List<AgeLookRow>();
+        }
+
+        /// <summary>The item's name as its defs give it, before any look renames it for the colony's age.</summary>
+        public static string NormalLabelOf(ThingDef item)
+        {
+            return normalLabels.TryGetValue(item, out string label) ? label : item.label;
+        }
 
         /// <summary>Makes every pick's look. A pick that can't be made logs a warning and leaves its item as it was.</summary>
         public static void MakeAll(bool hotReload)
         {
+            if (!hotReload)
+            {
+                RememberNormalLabels();
+            }
             IEnumerable<Pick> picks = LookPickerMod.Settings.picks.Where(pick => pick != null);
             foreach (IGrouping<string, Pick> itemPicks in picks.GroupBy(pick => pick.item ?? ""))
             {
@@ -40,14 +58,9 @@ namespace VisualProgression.LookPicker
                 Warn($"There's no item named \"{itemName}\", so its picks are skipped.");
                 return;
             }
-            if (item.graphicData == null)
+            if (!PickRules.CanHoldLook(item))
             {
-                Warn($"{item.defName} has no art of its own to change, so its picks are skipped.");
-                return;
-            }
-            if (!typeof(ThingWithComps).IsAssignableFrom(item.thingClass))
-            {
-                Warn($"{item.defName} can't hold a look, so its picks are skipped.");
+                Warn($"{item.defName} has no art of its own or can't hold a look, so its picks are skipped.");
                 return;
             }
             var picked = new List<AgeLookRow>();
@@ -74,7 +87,7 @@ namespace VisualProgression.LookPicker
                 Warn($"A pick for {item.defName} has no age, so it's skipped.");
                 return null;
             }
-            if (!pick.HasArt && !pick.HasName)
+            if (pick.IsEmpty)
             {
                 Warn($"{pickName} has no art and no name, so it's skipped.");
                 return null;
@@ -83,11 +96,16 @@ namespace VisualProgression.LookPicker
             {
                 Warn($"{pickName} has an art path but no mod to take it from, so it keeps the item's art.");
             }
-            Type graphicClass = item.graphicData.graphicClass;
-            if (pick.HasArt && !ArtFromModGraphics.Any(kind => kind.IsAssignableFrom(graphicClass)))
+            ArtBlock artBlock = PickRules.ArtBlockFor(item);
+            if (pick.HasArt && artBlock == ArtBlock.GraphicKind)
             {
-                Warn($"{pickName} names art, but {item.defName}'s art is a {graphicClass?.Name}, and only single, " +
-                    "stack-count and random art can come from a chosen mod. It's skipped.");
+                Warn($"{pickName} names art, but {item.defName}'s art is a {item.graphicData.graphicClass?.Name}, and " +
+                    "only single, stack-count and random art can come from a chosen mod. It's skipped.");
+                return null;
+            }
+            if (pick.HasArt && artBlock == ArtBlock.Apparel)
+            {
+                Warn($"{pickName} names art, but {item.defName} is apparel, and a pick can't change worn art. It's skipped.");
                 return null;
             }
             // From the item and age only, so saves still find the look when its art changes.
@@ -98,16 +116,11 @@ namespace VisualProgression.LookPicker
             {
                 return existing;
             }
-            GraphicData art = pick.HasArt ? new GraphicData_FromMod() : new GraphicData();
-            art.CopyFrom(item.graphicData);
-            if (art is GraphicData_FromMod fromMod)
-            {
-                fromMod.fromMod = pick.artMod;
-                if (!pick.artPath.NullOrEmpty())
-                {
-                    fromMod.texPath = pick.artPath;
-                }
-            }
+            // A pick without art keeps the look the age had: a pack's look covering it, or the item's own art.
+            ThingStyleDef packLook = pick.HasArt || pick.normalArt ? null : PackLookCovering(item, pick.upToAge);
+            GraphicData art = pick.HasArt
+                ? ArtFromMod(item, pick)
+                : CopyOf(packLook?.graphicData ?? item.graphicData);
             var look = new ThingStyleDef
             {
                 defName = lookName,
@@ -115,8 +128,55 @@ namespace VisualProgression.LookPicker
                 graphicData = art,
                 modContentPack = LookPickerMod.ContentPack,
             };
+            if (packLook != null)
+            {
+                look.wornGraphicPath = packLook.wornGraphicPath;
+                look.uiIconPath = packLook.uiIconPath;
+                look.uiIconScale = packLook.uiIconScale;
+                look.color = packLook.color;
+            }
             DefGenerator.AddImpliedDef(look, hotReload);
             return look;
+        }
+
+        private static GraphicData ArtFromMod(ThingDef item, Pick pick)
+        {
+            var art = new GraphicData_FromMod();
+            art.CopyFrom(item.graphicData);
+            art.fromMod = pick.artMod;
+            if (!pick.artPath.NullOrEmpty())
+            {
+                art.texPath = pick.artPath;
+            }
+            if (pick.singlePicture)
+            {
+                // One picture at every stack size; a thing draws its style's own graphic data.
+                art.graphicClass = typeof(Graphic_Single);
+            }
+            return art;
+        }
+
+        private static GraphicData CopyOf(GraphicData source)
+        {
+            GraphicData copy = source is GraphicData_FromMod fromMod
+                ? new GraphicData_FromMod { fromMod = fromMod.fromMod }
+                : new GraphicData();
+            copy.CopyFrom(source);
+            return copy;
+        }
+
+        // The pack's look that covers the age, or null when no pack's look does.
+        private static ThingStyleDef PackLookCovering(ThingDef item, TechLevel age)
+        {
+            List<AgeLookRow> rows = item.GetCompProperties<CompProperties_AgeLook>()?.looks?
+                .Where(row => row?.style != null)
+                .ToList();
+            if (rows == null)
+            {
+                return null;
+            }
+            int row = AgeLookTable.RowFor(rows.Select(packRow => (int)packRow.upToAge).ToList(), (int)age);
+            return row < 0 ? null : rows[row].style;
         }
 
         // A pick beats a pack's row for its age. The pack's other rows stay as they were.
@@ -125,10 +185,12 @@ namespace VisualProgression.LookPicker
             CompProperties_AgeLook ageLooks = item.comps.OfType<CompProperties_AgeLook>().FirstOrDefault();
             if (ageLooks == null)
             {
+                packRowsByItem[item] = new List<AgeLookRow>();
                 item.comps.Add(new CompProperties_AgeLook { looks = picked });
                 return;
             }
             List<AgeLookRow> packRows = ageLooks.looks ?? new List<AgeLookRow>();
+            packRowsByItem[item] = new List<AgeLookRow>(packRows);
             List<AgeRow> merged = LookRows.WithPicks(
                 packRows.Select(row => new AgeRow((int)row.upToAge, row.style?.defName)).ToList(),
                 picked.Select(row => new AgeRow((int)row.upToAge, row.style.defName)).ToList());
@@ -149,6 +211,17 @@ namespace VisualProgression.LookPicker
                 rows.Add(packRow);
             }
             ageLooks.looks = rows;
+        }
+
+        private static void RememberNormalLabels()
+        {
+            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+            {
+                if (def.category == ThingCategory.Item)
+                {
+                    normalLabels[def] = def.label;
+                }
+            }
         }
 
         private static void Warn(string message)

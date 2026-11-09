@@ -7,16 +7,33 @@ you have installed. Items made in that age get your pick and keep it, the way
 Requires Harmony and Visual Progression Framework. Something also has to raise your colony's tech level, such as
 Vanilla Factions Expanded - Tribals.
 
+## Picking a look
+
+1. Open an item's info card and click **Pick looks**.
+2. Choose an age on the left.
+3. Click a picture to use it in that age: the item's normal art, art other mods have for it, or any mod's art below
+   that. Items with stack art, like meals, choose between whole folders, which change picture as the stack
+   grows, and single pictures, which show at every stack size. Hover a folder to see when each picture is used.
+4. Type a name to rename the item in that age. A name alone keeps the art the age already had. A look covers its age
+   and the earlier ones down to the next look, so a Medieval look also shows in the Neolithic age.
+5. Close the window and restart the game.
+
+The mod settings list the items you've changed, to open again or reset.
+
+Apparel, and items whose art has four directions, take names only.
+
 ## Status
 
-Work in progress. Picks are read from the mod's settings file and take effect after a restart. The window for picking
-them in game is coming next.
+Work in progress, not on the Workshop yet.
 
 ## How it works
 
 Each pick becomes a look while the game loads its defs, the same kind of look a framework pack adds in XML. A pick
 covers its age and the earlier ages down to the item's next look, and past the last look the item keeps its normal
 art. When a pack already gives the item a look for that age, your pick replaces it.
+
+Stack art takes its pictures' names from every mod's folder at that path. If the folder you pick names its pictures
+differently from the item's own folder, the missing ones show the normal art.
 
 ## License
 
