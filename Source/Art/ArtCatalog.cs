@@ -31,6 +31,15 @@ namespace VisualProgression.AgePicker
         // In the order a set of facings lists its pictures: the front first, as the game's icons show it.
         private static readonly string[] DirectionEndings = { "_south", "_east", "_north", "_west" };
         private const int South = 0, East = 1, North = 2, West = 3;
+        // A common word like steel would otherwise fill the row with thousands of pictures.
+        private const int MaxLikelyMatches = 40;
+        private const int LabelWeight = 3;
+        private const int OtherWeight = 1;
+        // Words found all over mods' art names, which say nothing about which item the art is for.
+        private static readonly HashSet<string> CommonWords = new HashSet<string>
+        {
+            "item", "thing", "building", "base", "the", "and", "for", "with", "small", "large", "big", "tiny",
+        };
 
         private static List<ModArt> mods;
 
@@ -63,6 +72,122 @@ namespace VisualProgression.AgePicker
                 options.AddRange(AtPath(item, pathBeforePatches, kind).Where(option => !options.Contains(option)));
             }
             return options;
+        }
+
+        /// <summary>
+        /// Art from every mod whose file or folder name shares a word with the item, best first, leaving out the given
+        /// options (the item's own row). A word from the item's label counts more than one from its defName or art file
+        /// names. At most MaxLikelyMatches.
+        /// </summary>
+        public static List<ArtOption> LikelyMatches(ThingDef item, ArtKind kind, ICollection<ArtOption> leaveOut)
+        {
+            Dictionary<string, int> itemWords = ItemWords(item);
+            if (itemWords.Count == 0)
+            {
+                return new List<ArtOption>();
+            }
+            var matches = new List<(ArtOption option, int score)>();
+            foreach (ModArt mod in Mods)
+            {
+                foreach (ArtOption option in mod.OfKind(kind))
+                {
+                    int score = 0;
+                    foreach (string word in option.NameWords)
+                    {
+                        if (itemWords.TryGetValue(word, out int weight))
+                        {
+                            score += weight;
+                        }
+                    }
+                    if (score > 0 && !leaveOut.Contains(option) && Fits(item, option))
+                    {
+                        matches.Add((option, score));
+                    }
+                }
+            }
+            // OrderByDescending keeps load order among equal matches.
+            return matches
+                .OrderByDescending(match => match.score)
+                .Take(MaxLikelyMatches)
+                .Select(match => match.option)
+                .ToList();
+        }
+
+        /// <summary>
+        /// The words in a name, lower case, for matching names: split where a character isn't a letter and where a
+        /// lower-case letter meets a capital, a trailing "s" dropped from words over three letters, and short and common
+        /// words left out.
+        /// </summary>
+        public static List<string> WordsIn(string name)
+        {
+            var words = new List<string>();
+            if (name.NullOrEmpty())
+            {
+                return words;
+            }
+            int start = -1;
+            for (int i = 0; i <= name.Length; i++)
+            {
+                bool letter = i < name.Length && char.IsLetter(name[i]);
+                bool newWord = letter && start >= 0 && char.IsUpper(name[i]) && char.IsLower(name[i - 1]);
+                if (start >= 0 && (!letter || newWord))
+                {
+                    AddWord(words, name.Substring(start, i - start));
+                    start = -1;
+                }
+                if (letter && start < 0)
+                {
+                    start = i;
+                }
+            }
+            return words;
+        }
+
+        private static void AddWord(List<string> words, string word)
+        {
+            word = word.ToLowerInvariant();
+            if (word.Length > 3 && word.EndsWith('s'))
+            {
+                word = word.Substring(0, word.Length - 1);
+            }
+            if (word.Length >= 3 && !CommonWords.Contains(word))
+            {
+                words.Add(word);
+            }
+        }
+
+        // Each word with its weight. Words from the item's label outweigh words from its defName and art file names, so
+        // for a lung other lung art comes before the heart jar that shares "body part" with BodyPart_Lung, and a mod's
+        // defName prefix (VCE_) doesn't rank all of that mod's art.
+        private static Dictionary<string, int> ItemWords(ThingDef item)
+        {
+            var weights = new Dictionary<string, int>();
+            AddWeighted(weights, WordsIn(FileName(item.graphicData?.texPath)), OtherWeight);
+            AddWeighted(weights, WordsIn(FileName(OriginalArt.PathBeforePatches(item))), OtherWeight);
+            AddWeighted(weights, WordsIn(item.defName), OtherWeight);
+            AddWeighted(weights, WordsIn(item.label), LabelWeight);
+            return weights;
+        }
+
+        private static void AddWeighted(Dictionary<string, int> weights, List<string> words, int weight)
+        {
+            foreach (string word in words)
+            {
+                if (!weights.TryGetValue(word, out int existing) || existing < weight)
+                {
+                    weights[word] = weight;
+                }
+            }
+        }
+
+        private static string FileName(string path)
+        {
+            if (path == null)
+            {
+                return null;
+            }
+            string trimmed = path.TrimEnd('/');
+            return trimmed.Substring(trimmed.LastIndexOf('/') + 1);
         }
 
         private static List<ArtOption> AtPath(ThingDef item, string path, ArtKind kind)

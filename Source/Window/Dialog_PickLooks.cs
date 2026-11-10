@@ -32,6 +32,7 @@ namespace VisualProgression.AgePicker
         private readonly QuickSearchWidget search = new QuickSearchWidget();
         private readonly ArtGrid grid;
         private readonly Dictionary<ArtKind, List<ArtOption>> forItem = new Dictionary<ArtKind, List<ArtOption>>();
+        private readonly Dictionary<ArtKind, List<ArtOption>> likely = new Dictionary<ArtKind, List<ArtOption>>();
         private readonly Dictionary<ArtKind, List<ArtOption>> found = new Dictionary<ArtKind, List<ArtOption>>();
         // Stack, random and meal items choose between whole folders and single pictures; four-facing art offers sets of
         // facings; other items offer pictures.
@@ -73,6 +74,7 @@ namespace VisualProgression.AgePicker
                 foreach (ArtKind offered in OfferedKinds())
                 {
                     forItem[offered] = ArtCatalog.ForItem(item, offered);
+                    likely[offered] = ArtCatalog.LikelyMatches(item, offered, forItem[offered]);
                 }
                 FindArt();
             }
@@ -272,7 +274,9 @@ namespace VisualProgression.AgePicker
         private void ShowKind(ArtKind shown)
         {
             kind = shown;
-            grid.Show(forItem[kind], found[kind], kind);
+            // A search shows what was asked for, so the likely matches show only while it's empty.
+            List<ArtOption> shownLikely = search.filter.Text.NullOrEmpty() ? likely[kind] : new List<ArtOption>();
+            grid.Show(forItem[kind], shownLikely, found[kind], kind);
         }
 
         private void DrawKindChip(Rect rect, ArtKind chipKind, string labelKey)

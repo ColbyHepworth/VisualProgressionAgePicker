@@ -10,6 +10,7 @@ namespace VisualProgression.AgePicker
     {
         private readonly List<string> picturePaths;
         private List<Texture> pictures;
+        private List<string> nameWords;
 
         public ArtOption(ModContentPack mod, string path, ArtKind kind, IEnumerable<string> picturePaths)
         {
@@ -34,6 +35,9 @@ namespace VisualProgression.AgePicker
 
         /// <summary>The tile's name: the picture's file name, the folder's name or the facings' shared name.</summary>
         public string Name => Path.Substring(Path.LastIndexOf('/') + 1);
+
+        /// <summary>The words in the tile's name, for finding art that likely matches an item (ArtCatalog.WordsIn).</summary>
+        public List<string> NameWords => nameWords ??= ArtCatalog.WordsIn(Name).Distinct().ToList();
 
         /// <summary>How many pictures the folder holds, 4 for facings, or 1 for a single picture.</summary>
         public int PictureCount => picturePaths.Count;

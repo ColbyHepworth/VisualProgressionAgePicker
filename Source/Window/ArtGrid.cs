@@ -5,8 +5,8 @@ using Verse;
 namespace VisualProgression.AgePicker
 {
     /// <summary>
-    /// One scrolling grid of art: the item's own art first ("For this item", led by its normal art), then each mod's art
-    /// under the mod's name. Only the rows in view are drawn, since 1.7 loads each texture the first time it's drawn.
+    /// One scrolling grid of art: the item's own art first ("For this item", led by its normal art), then art whose
+    /// name likely matches the item, then each mod's art under the mod's name. Only the rows in view are drawn, since 1.7 loads each texture the first time it's drawn.
     /// </summary>
     public class ArtGrid
     {
@@ -21,6 +21,7 @@ namespace VisualProgression.AgePicker
         private readonly ThingDef item;
         private readonly List<GridRow> rows = new List<GridRow>();
         private List<ArtOption> itemArt = new List<ArtOption>();
+        private List<ArtOption> likelyArt = new List<ArtOption>();
         private List<ArtOption> found = new List<ArtOption>();
         private ArtKind kind;
         private int columns = -1;
@@ -31,10 +32,15 @@ namespace VisualProgression.AgePicker
             this.item = item;
         }
 
-        /// <summary>The art to show: the item's own, then what the search found, as pictures, folders or facings.</summary>
-        public void Show(List<ArtOption> itemOptions, List<ArtOption> foundOptions, ArtKind shownKind)
+        /// <summary>
+        /// The art to show: the item's own, art that likely matches it (left out when empty), then what the search found,
+        /// as pictures, folders or facings.
+        /// </summary>
+        public void Show(List<ArtOption> itemOptions, List<ArtOption> likelyOptions, List<ArtOption> foundOptions,
+            ArtKind shownKind)
         {
             itemArt = itemOptions;
+            likelyArt = likelyOptions;
             found = foundOptions;
             kind = shownKind;
             columns = -1;
@@ -154,6 +160,12 @@ namespace VisualProgression.AgePicker
             var itemTiles = new List<ArtOption> { null };
             itemTiles.AddRange(itemArt);
             AddTileRows(itemTiles, tileRowHeight);
+
+            if (likelyArt.Count > 0)
+            {
+                rows.Add(new GridRow { Heading = "VPAP_LikelyMatches".Translate(), Height = HeadingHeight });
+                AddTileRows(likelyArt, tileRowHeight);
+            }
 
             ModContentPack mod = null;
             var modTiles = new List<ArtOption>();

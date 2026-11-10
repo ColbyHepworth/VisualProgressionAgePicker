@@ -17,9 +17,10 @@ such as Vanilla Factions Expanded - Tribals.
    a later age's look, a pack, or the item's normal look.
 3. Click a picture to use it in that age: the item's normal art, art other mods have for it, or any mod's art below
    that. When a retexture moved the item to art of its own, the item's art from before is offered too. It draws at
-   the retexture's size and colour. Items with stack art, like meals, choose between whole folders, which change
-   picture as the stack grows, and single pictures, which show at every stack size. Hover a folder to see when each picture is used.
-   Buildings and furniture that turn take art drawn from all four sides. Hover one to see each side.
+   the retexture's size and colour. Under **Likely matches** is art from any mod whose file or folder name shares a
+   word with the item, best matches first. Items with stack art, like meals, choose between whole folders, which change
+   picture as the stack grows, and single pictures, which show at every stack size. Hover a folder to see when each
+   picture is used. Buildings and furniture that turn take art drawn from all four sides. Hover one to see each side.
 4. Type a name to rename the item in that age. A name alone keeps the art the age already had. A look covers its age
    and the earlier ones down to the next look, so a Medieval look also shows in the Neolithic age.
 5. Close the window and restart the game.

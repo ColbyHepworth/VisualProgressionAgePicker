@@ -7,6 +7,7 @@
   <VPAP_NamesOnlyApparel>A pick can't change worn art, so apparel takes names only.</VPAP_NamesOnlyApparel>
   <VPAP_NormalArt>Normal art</VPAP_NormalArt>
   <VPAP_ForThisItem>For this item</VPAP_ForThisItem>
+  <VPAP_LikelyMatches>Likely matches</VPAP_LikelyMatches>
   <VPAP_WholeFolders>Whole folders</VPAP_WholeFolders>
   <VPAP_SinglePictures>Single pictures</VPAP_SinglePictures>
   <VPAP_NoArtFound>No art matches.</VPAP_NoArtFound>
