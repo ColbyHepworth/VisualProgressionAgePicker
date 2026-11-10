@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -121,34 +120,8 @@ namespace VisualProgression.AgePicker
             {
                 return matching.ToList();
             }
-            return matching.OrderBy(listed => SearchRank(listed.label, text)).ToList();
-        }
-
-        // 0 the whole name, 1 the start of the name, 2 the start of a word in it, 3 anywhere in it, 4 only the mod's name.
-        private static int SearchRank(string label, string text)
-        {
-            const StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
-            if (string.Equals(label, text, IgnoreCase))
-            {
-                return 0;
-            }
-            int at = label.IndexOf(text, IgnoreCase);
-            if (at < 0)
-            {
-                return 4;
-            }
-            if (at == 0)
-            {
-                return 1;
-            }
-            for (; at >= 0; at = label.IndexOf(text, at + 1, IgnoreCase))
-            {
-                if (!char.IsLetterOrDigit(label[at - 1]))
-                {
-                    return 2;
-                }
-            }
-            return 3;
+            // A match only in the mod's name ranks last, as SearchRank.NotInName.
+            return matching.OrderBy(listed => SearchRank.Of(listed.label, text)).ToList();
         }
 
         // Only the rows in view are drawn, since the full list runs to thousands.

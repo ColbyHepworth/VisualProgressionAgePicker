@@ -211,24 +211,57 @@ namespace VisualProgression.AgePicker
         }
 
         /// <summary>
-        /// Every mod's art of the kind whose path or mod name contains the text, grouped by mod in load order. An empty text
-        /// matches everything.
+        /// Every mod's art of the kind whose path or mod name contains the text, grouped by mod. Art whose file name matches
+        /// best comes first, and the mods are ordered by their best match. An empty text matches everything, in load order.
         /// </summary>
         public static List<ArtOption> Search(ThingDef item, string text, ArtKind kind)
         {
-            var found = new List<ArtOption>();
+            text = text?.Trim() ?? "";
+            var foundByMod = new List<List<RankedOption>>();
             foreach (ModArt mod in Mods)
             {
-                bool modMatches = text.NullOrEmpty() || Contains(mod.Pack.Name, text);
+                bool modMatches = text.Length == 0 || Contains(mod.Pack.Name, text);
+                var modFound = new List<RankedOption>();
                 foreach (ArtOption option in mod.OfKind(kind))
                 {
                     if ((modMatches || Contains(option.Path, text)) && Fits(item, option))
                     {
-                        found.Add(option);
+                        modFound.Add(new RankedOption(option, text.Length == 0 ? 0 : PathRank(option, text)));
                     }
                 }
+                if (modFound.Count > 0)
+                {
+                    // OrderBy is stable, so equal matches keep their path order, and equal mods their load order.
+                    foundByMod.Add(modFound.OrderBy(found => found.rank).ToList());
+                }
             }
-            return found;
+            return foundByMod
+                .OrderBy(modFound => modFound[0].rank)
+                .SelectMany(modFound => modFound.Select(found => found.option))
+                .ToList();
+        }
+
+        // Ranked by the file name, then a match only in the path's folders, then only in the mod's name.
+        private static int PathRank(ArtOption option, string text)
+        {
+            int rank = SearchRank.Of(option.Name, text);
+            if (rank != SearchRank.NotInName)
+            {
+                return rank;
+            }
+            return Contains(option.Path, text) ? SearchRank.NotInName : SearchRank.NotInName + 1;
+        }
+
+        private readonly struct RankedOption
+        {
+            public readonly ArtOption option;
+            public readonly int rank;
+
+            public RankedOption(ArtOption option, int rank)
+            {
+                this.option = option;
+                this.rank = rank;
+            }
         }
 
         /// <summary>The option a pick names, or null when its mod isn't running or has no such art.</summary>
