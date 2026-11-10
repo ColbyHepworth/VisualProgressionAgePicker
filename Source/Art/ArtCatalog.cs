@@ -7,16 +7,20 @@ using Verse;
 
 namespace VisualProgression.AgePicker
 {
-    /// <summary>Which art to offer: single pictures, or folders of pictures for stack, random and meal art.</summary>
+    /// <summary>
+    /// Which art to offer: single pictures, folders of pictures for stack, random and meal art, or sets of facings for
+    /// four-facing art.
+    /// </summary>
     public enum ArtKind
     {
         Picture,
         Folder,
+        Facings,
     }
 
     /// <summary>
     /// Every running mod's art, read once from the mods' loaded textures, and the art that fits an item: single pictures
-    /// for single art, folders for stack-count and random art.
+    /// for single art, folders for stack-count and random art, sets of facings for four-facing art.
     /// </summary>
     public static class ArtCatalog
     {
@@ -24,7 +28,9 @@ namespace VisualProgression.AgePicker
         private static readonly string[] MaskEndings = { "_m", "_northm", "_eastm", "_southm", "_westm" };
         // Single art can use a four-direction picture's south view, as the game's own icons do.
         private static readonly string[] SideViewEndings = { "_north", "_east", "_west" };
-        private static readonly string[] DirectionEndings = { "_north", "_east", "_south", "_west" };
+        // In the order a set of facings lists its pictures: the front first, as the game's icons show it.
+        private static readonly string[] DirectionEndings = { "_south", "_east", "_north", "_west" };
+        private const int South = 0, East = 1, North = 2, West = 3;
 
         private static List<ModArt> mods;
 
@@ -44,11 +50,23 @@ namespace VisualProgression.AgePicker
 
         /// <summary>
         /// Art at the item's own path in each mod that has it, in load order, the base game first. Pictures for an item
-        /// whose art is a folder are the pictures in that folder.
+        /// whose art is a folder are the pictures in that folder. Facings are the set at the item's path. When other mods'
+        /// patches moved the item's art to another path, the art at its path before those patches follows.
         /// </summary>
         public static List<ArtOption> ForItem(ThingDef item, ArtKind kind)
         {
             string path = item.graphicData.texPath;
+            List<ArtOption> options = AtPath(item, path, kind);
+            string pathBeforePatches = OriginalArt.PathBeforePatches(item);
+            if (pathBeforePatches != null && !string.Equals(pathBeforePatches, path, StringComparison.OrdinalIgnoreCase))
+            {
+                options.AddRange(AtPath(item, pathBeforePatches, kind).Where(option => !options.Contains(option)));
+            }
+            return options;
+        }
+
+        private static List<ArtOption> AtPath(ThingDef item, string path, ArtKind kind)
+        {
             bool itemUsesFolder = PickRules.UsesFolder(item);
             var options = new List<ArtOption>();
             foreach (ModArt mod in Mods)
@@ -58,7 +76,7 @@ namespace VisualProgression.AgePicker
                     options.AddRange(mod.PicturesIn(path));
                     continue;
                 }
-                ArtOption option = mod.Find(path, kind == ArtKind.Folder);
+                ArtOption option = mod.Find(path, kind);
                 if (option != null && Fits(item, option))
                 {
                     options.Add(option);
@@ -77,7 +95,7 @@ namespace VisualProgression.AgePicker
             foreach (ModArt mod in Mods)
             {
                 bool modMatches = text.NullOrEmpty() || Contains(mod.Pack.Name, text);
-                foreach (ArtOption option in kind == ArtKind.Folder ? mod.Folders : mod.Pictures)
+                foreach (ArtOption option in mod.OfKind(kind))
                 {
                     if ((modMatches || Contains(option.Path, text)) && Fits(item, option))
                     {
@@ -89,11 +107,21 @@ namespace VisualProgression.AgePicker
         }
 
         /// <summary>The option a pick names, or null when its mod isn't running or has no such art.</summary>
-        public static ArtOption Find(string packageId, string path, bool folder)
+        public static ArtOption Find(string packageId, string path, ArtKind kind)
         {
             ModArt mod = Mods.FirstOrDefault(art =>
                 string.Equals(art.Pack.PackageIdPlayerFacing, packageId, StringComparison.OrdinalIgnoreCase));
-            return mod?.Find(path, folder);
+            return mod?.Find(path, kind);
+        }
+
+        /// <summary>The kind of art a pick on the item uses: facings, a folder, or a single picture.</summary>
+        public static ArtKind KindFor(ThingDef item, bool singlePicture)
+        {
+            if (PickRules.UsesFacings(item))
+            {
+                return ArtKind.Facings;
+            }
+            return PickRules.UsesFolder(item) && !singlePicture ? ArtKind.Folder : ArtKind.Picture;
         }
 
         /// <summary>The mod's own picture at the path, even where another mod replaces it, or null if it can't be read.</summary>
@@ -121,8 +149,9 @@ namespace VisualProgression.AgePicker
             }
             if (Prefs.DevMode)
             {
-                Log.Message($"[Age Picker] Read {all.Sum(mod => mod.Pictures.Count)} pictures and " +
-                    $"{all.Sum(mod => mod.Folders.Count)} folders from {all.Count} mods in {timer.ElapsedMilliseconds} ms.");
+                Log.Message($"[Age Picker] Read {all.Sum(mod => mod.Pictures.Count)} pictures, " +
+                    $"{all.Sum(mod => mod.Folders.Count)} folders and {all.Sum(mod => mod.FacingSets.Count)} sets of facings " +
+                    $"from {all.Count} mods in {timer.ElapsedMilliseconds} ms.");
             }
             return all;
         }
@@ -151,10 +180,30 @@ namespace VisualProgression.AgePicker
             return endings.Any(ending => name.EndsWith(ending, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// A set's four pictures, south, east, north and west, each missing one filled as Graphic_Multi.Init fills it: north
+        /// from south, east or west; south from north; east from west, then north; west from east.
+        /// </summary>
+        private static List<string> FacingPaths(List<string> setPaths)
+        {
+            var facings = new string[4];
+            for (int facing = South; facing <= West; facing++)
+            {
+                facings[facing] = setPaths.FirstOrDefault(path =>
+                    path.EndsWith(DirectionEndings[facing], StringComparison.OrdinalIgnoreCase));
+            }
+            facings[North] = facings[North] ?? facings[South] ?? facings[East] ?? facings[West];
+            facings[South] = facings[South] ?? facings[North];
+            facings[East] = facings[East] ?? facings[West] ?? facings[North];
+            facings[West] = facings[West] ?? facings[East];
+            return facings.ToList();
+        }
+
         private sealed class ModArt
         {
             private readonly Dictionary<string, ArtOption> picturesByPath;
             private readonly Dictionary<string, ArtOption> foldersByPath;
+            private readonly Dictionary<string, ArtOption> facingSetsByPath;
             private readonly Dictionary<string, List<ArtOption>> picturesByFolder;
 
             public ModArt(ModContentPack pack, IEnumerable<string> texturePaths)
@@ -167,7 +216,7 @@ namespace VisualProgression.AgePicker
                     .ToList();
                 Pictures = paths
                     .Where(path => !EndsWithAny(path, SideViewEndings))
-                    .Select(path => new ArtOption(pack, path, isFolder: false, picturePaths: new[] { path }))
+                    .Select(path => new ArtOption(pack, path, ArtKind.Picture, new[] { path }))
                     .ToList();
                 // Stack and random art read a folder's subfolders too, but rebuild their paths wrongly, so only folders
                 // without subfolders are offered. Paths are sorted, as the game sorts a folder's pictures.
@@ -188,7 +237,12 @@ namespace VisualProgression.AgePicker
                 Folders = folders
                     .Where(folder => !hasSubfolders.Contains(folder.Key))
                     .Where(folder => !folder.Any(path => EndsWithAny(path, DirectionEndings)))
-                    .Select(folder => new ArtOption(pack, folder.Key, isFolder: true, picturePaths: folder))
+                    .Select(folder => new ArtOption(pack, folder.Key, ArtKind.Folder, folder))
+                    .ToList();
+                FacingSets = paths
+                    .Where(path => EndsWithAny(path, DirectionEndings))
+                    .GroupBy(path => path.Substring(0, path.LastIndexOf('_')), StringComparer.OrdinalIgnoreCase)
+                    .Select(set => new ArtOption(pack, set.Key, ArtKind.Facings, FacingPaths(set.ToList())))
                     .ToList();
                 // The base game's Resources ignore case, so an item's path can differ in case from the file.
                 picturesByPath = new Dictionary<string, ArtOption>(StringComparer.OrdinalIgnoreCase);
@@ -200,6 +254,11 @@ namespace VisualProgression.AgePicker
                 foreach (ArtOption folder in Folders)
                 {
                     foldersByPath[folder.Path] = folder;
+                }
+                facingSetsByPath = new Dictionary<string, ArtOption>(StringComparer.OrdinalIgnoreCase);
+                foreach (ArtOption set in FacingSets)
+                {
+                    facingSetsByPath[set.Path] = set;
                 }
                 picturesByFolder = Pictures
                     .Where(picture => picture.Path.Contains('/'))
@@ -213,6 +272,13 @@ namespace VisualProgression.AgePicker
 
             public List<ArtOption> Folders { get; }
 
+            public List<ArtOption> FacingSets { get; }
+
+            public List<ArtOption> OfKind(ArtKind kind)
+            {
+                return kind == ArtKind.Folder ? Folders : kind == ArtKind.Facings ? FacingSets : Pictures;
+            }
+
             public List<ArtOption> PicturesIn(string folder)
             {
                 if (folder == null || !picturesByFolder.TryGetValue(folder.TrimEnd('/'), out List<ArtOption> pictures))
@@ -222,13 +288,15 @@ namespace VisualProgression.AgePicker
                 return pictures;
             }
 
-            public ArtOption Find(string path, bool folder)
+            public ArtOption Find(string path, ArtKind kind)
             {
                 if (path == null)
                 {
                     return null;
                 }
-                Dictionary<string, ArtOption> options = folder ? foldersByPath : picturesByPath;
+                Dictionary<string, ArtOption> options = kind == ArtKind.Folder ? foldersByPath
+                    : kind == ArtKind.Facings ? facingSetsByPath
+                    : picturesByPath;
                 return options.TryGetValue(path.TrimEnd('/'), out ArtOption option) ? option : null;
             }
         }

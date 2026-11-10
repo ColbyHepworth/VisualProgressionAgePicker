@@ -23,7 +23,7 @@ namespace VisualProgression.AgePicker
             return item.GetCompProperties<CompProperties_AgeLook>()?.looks ?? new List<AgeLookRow>();
         }
 
-        /// <summary>The item's name as its defs give it, before any look renames it for the colony's age.</summary>
+        /// <summary>The item's or building's name as its defs give it, before any look renames it for the colony's age.</summary>
         public static string NormalLabelOf(ThingDef item)
         {
             return normalLabels.TryGetValue(item, out string label) ? label : item.label;
@@ -98,8 +98,9 @@ namespace VisualProgression.AgePicker
             ArtBlock artBlock = PickRules.ArtBlockFor(item);
             if (pick.HasArt && artBlock == ArtBlock.GraphicKind)
             {
-                return $"names art, but {item.defName}'s art is a {item.graphicData.graphicClass?.Name}, and only single, " +
-                    "stack-count and random art can come from a chosen mod";
+                return $"names art, but {item.defName}'s art is a {item.graphicData.graphicClass?.Name}" +
+                    (item.graphicData.Linked ? " that joins its neighbours" : "") +
+                    ", and only single, stack-count, random and four-facing art can come from a chosen mod";
             }
             if (pick.HasArt && artBlock == ArtBlock.Apparel)
             {
@@ -237,7 +238,8 @@ namespace VisualProgression.AgePicker
         {
             foreach (ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
             {
-                if (def.category == ThingCategory.Item)
+                // The framework renames a listed type for the colony's age, buildings included.
+                if (PickRules.CanOpenPicker(def))
                 {
                     normalLabels[def] = def.label;
                 }

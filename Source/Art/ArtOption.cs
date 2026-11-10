@@ -5,44 +5,52 @@ using Verse;
 
 namespace VisualProgression.AgePicker
 {
-    /// <summary>One picture, or one folder of pictures, a mod has that a pick can use.</summary>
+    /// <summary>One picture, one folder of pictures or one set of facings a mod has that a pick can use.</summary>
     public sealed class ArtOption
     {
         private readonly List<string> picturePaths;
         private List<Texture> pictures;
 
-        public ArtOption(ModContentPack mod, string path, bool isFolder, IEnumerable<string> picturePaths)
+        public ArtOption(ModContentPack mod, string path, ArtKind kind, IEnumerable<string> picturePaths)
         {
             Mod = mod;
             Path = path;
-            IsFolder = isFolder;
+            Kind = kind;
             this.picturePaths = picturePaths.ToList();
         }
 
         /// <summary>The mod the art comes from. For the base game, its art is in the game's Resources.</summary>
         public ModContentPack Mod { get; }
 
-        /// <summary>The texture path, or the folder's path for stack-count and random art.</summary>
+        /// <summary>
+        /// The texture path, the folder's path for stack-count and random art, or for facings the path without the
+        /// facing's ending.
+        /// </summary>
         public string Path { get; }
 
-        public bool IsFolder { get; }
+        public ArtKind Kind { get; }
 
-        /// <summary>The tile's name: the picture's file name or the folder's name.</summary>
+        public bool IsFolder => Kind == ArtKind.Folder;
+
+        /// <summary>The tile's name: the picture's file name, the folder's name or the facings' shared name.</summary>
         public string Name => Path.Substring(Path.LastIndexOf('/') + 1);
 
-        /// <summary>How many pictures the folder holds, or 1 for a single picture.</summary>
+        /// <summary>How many pictures the folder holds, 4 for facings, or 1 for a single picture.</summary>
         public int PictureCount => picturePaths.Count;
 
-        /// <summary>The option's pictures in the order the game sorts them, loaded on first use, since 1.7 loads a texture
-        /// when it's first drawn.</summary>
+        /// <summary>The option's pictures in the order the game sorts them (facings: south, east, north, west), loaded on
+        /// first use, since 1.7 loads a texture when it's first drawn.</summary>
         public List<Texture> Pictures
         {
             get
             {
-                pictures ??= picturePaths
-                    .Select(path => (Texture)ArtCatalog.TextureFrom(Mod, path))
-                    .Where(picture => picture != null)
-                    .ToList();
+                if (pictures == null)
+                {
+                    List<Texture> loaded = picturePaths.Select(path => (Texture)ArtCatalog.TextureFrom(Mod, path)).ToList();
+                    // Facings are labelled by position, so a set missing one shows nothing rather than shifted sides.
+                    bool facingMissing = Kind == ArtKind.Facings && loaded.Any(picture => picture == null);
+                    pictures = facingMissing ? new List<Texture>() : loaded.Where(picture => picture != null).ToList();
+                }
                 return pictures;
             }
         }

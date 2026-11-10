@@ -33,7 +33,8 @@ namespace VisualProgression.AgePicker
         private readonly ArtGrid grid;
         private readonly Dictionary<ArtKind, List<ArtOption>> forItem = new Dictionary<ArtKind, List<ArtOption>>();
         private readonly Dictionary<ArtKind, List<ArtOption>> found = new Dictionary<ArtKind, List<ArtOption>>();
-        // Stack, random and meal items choose between whole folders and single pictures; other items offer pictures.
+        // Stack, random and meal items choose between whole folders and single pictures; four-facing art offers sets of
+        // facings; other items offer pictures.
         private ArtKind kind;
         private TechLevel selectedAge;
         private bool changed;
@@ -68,7 +69,7 @@ namespace VisualProgression.AgePicker
             base.PreOpen();
             if (artBlock == ArtBlock.None)
             {
-                kind = usesFolder ? ArtKind.Folder : ArtKind.Picture;
+                kind = ArtCatalog.KindFor(item, singlePicture: false);
                 foreach (ArtKind offered in OfferedKinds())
                 {
                     forItem[offered] = ArtCatalog.ForItem(item, offered);
@@ -251,6 +252,10 @@ namespace VisualProgression.AgePicker
 
         private IEnumerable<ArtKind> OfferedKinds()
         {
+            if (PickRules.UsesFacings(item))
+            {
+                return new[] { ArtKind.Facings };
+            }
             return usesFolder ? new[] { ArtKind.Folder, ArtKind.Picture } : new[] { ArtKind.Picture };
         }
 
@@ -267,7 +272,7 @@ namespace VisualProgression.AgePicker
         private void ShowKind(ArtKind shown)
         {
             kind = shown;
-            grid.Show(forItem[kind], found[kind], kind == ArtKind.Folder);
+            grid.Show(forItem[kind], found[kind], kind);
         }
 
         private void DrawKindChip(Rect rect, ArtKind chipKind, string labelKey)
@@ -305,7 +310,7 @@ namespace VisualProgression.AgePicker
 
         private ArtOption PickedOption(Pick pick)
         {
-            return ArtCatalog.Find(pick.artMod, PickedPath(pick), usesFolder && !pick.singlePicture);
+            return ArtCatalog.Find(pick.artMod, PickedPath(pick), ArtCatalog.KindFor(item, pick.singlePicture));
         }
 
         private Pick PickAt(TechLevel age)

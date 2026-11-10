@@ -9,7 +9,7 @@ namespace VisualProgression.AgePicker
 {
     /// <summary>
     /// Shows stack and random art as the set of pictures it is: a strip of three in a tile, and every picture with when
-    /// the game uses it while the mouse is over the tile.
+    /// the game uses it while the mouse is over the tile. Four-facing art is its four facings, the front first.
     /// </summary>
     public static class StackPictures
     {
@@ -21,8 +21,16 @@ namespace VisualProgression.AgePicker
         private static readonly AccessTools.FieldRef<Graphic_Collection, Graphic[]> SubGraphics =
             AccessTools.FieldRefAccess<Graphic_Collection, Graphic[]>("subGraphics");
         private static readonly Dictionary<Graphic, List<Texture>> picturesByGraphic = new Dictionary<Graphic, List<Texture>>();
+        // Facings in the order a set of facings lists them (ArtCatalog): south, east, north, west.
+        private const int EastIndex = 1, WestIndex = 3;
+        private static readonly string[] FacingKeys = { "VPAP_FacingSouth", "VPAP_FacingEast", "VPAP_FacingNorth", "VPAP_FacingWest" };
+        // Draws a picture mirrored left to right.
+        private static readonly Rect MirroredCoords = new Rect(1f, 0f, -1f, 1f);
 
-        /// <summary>A graphic's pictures: each picture of stack or random art, or its one picture.</summary>
+        /// <summary>
+        /// A graphic's pictures: each picture of stack or random art, the four facings of four-facing art (south, east,
+        /// north, west), or its one picture.
+        /// </summary>
         public static List<Texture> Of(Graphic graphic)
         {
             if (graphic == null)
@@ -31,6 +39,18 @@ namespace VisualProgression.AgePicker
             }
             if (!picturesByGraphic.TryGetValue(graphic, out List<Texture> pictures))
             {
+                if (graphic is Graphic_Multi multi)
+                {
+                    pictures = new[] { multi.MatSouth, multi.MatEast, multi.MatNorth, multi.MatWest }
+                        .Select(material => material?.mainTexture)
+                        .ToList();
+                    if (pictures.Any(picture => picture == null))
+                    {
+                        pictures = new List<Texture>();
+                    }
+                    picturesByGraphic[graphic] = pictures;
+                    return pictures;
+                }
                 IEnumerable<Graphic> parts = graphic is Graphic_Collection collection
                     ? SubGraphics(collection) ?? Array.Empty<Graphic>()
                     : new[] { graphic };
@@ -63,7 +83,7 @@ namespace VisualProgression.AgePicker
         /// </summary>
         public static void DrawLabelledRow(Rect rect, List<Texture> pictures, ThingDef item)
         {
-            List<int> shown = ShownIndexes(pictures.Count);
+            List<int> shown = UsesFacings(item) ? Enumerable.Range(0, pictures.Count).ToList() : ShownIndexes(pictures.Count);
             if (shown.Count < 2)
             {
                 return;
@@ -73,7 +93,7 @@ namespace VisualProgression.AgePicker
             for (int i = 0; i < shown.Count; i++)
             {
                 var cell = new Rect(rect.x + i * width, rect.y, width, rect.height);
-                Widgets.DrawTextureFitted(new Rect(cell.center.x - size / 2f, cell.y, size, size), pictures[shown[i]], 1f);
+                DrawPicture(new Rect(cell.center.x - size / 2f, cell.y, size, size), pictures, shown[i], item);
                 Text.Font = GameFont.Tiny;
                 Text.Anchor = TextAnchor.UpperCenter;
                 GUI.color = ColorLibrary.Grey;
@@ -117,7 +137,7 @@ namespace VisualProgression.AgePicker
                 {
                     float x = 10f + (i % columns) * cellWidth;
                     float y = 10f + (i / columns) * (HoverPictureSize + HoverLabelHeight + 6f);
-                    Widgets.DrawTextureFitted(new Rect(x + 12f, y, HoverPictureSize, HoverPictureSize), pictures[i], 1f);
+                    DrawPicture(new Rect(x + 12f, y, HoverPictureSize, HoverPictureSize), pictures, i, item);
                     Text.Font = GameFont.Tiny;
                     Text.Anchor = TextAnchor.UpperCenter;
                     Widgets.Label(new Rect(x, y + HoverPictureSize, cellWidth, HoverLabelHeight),
@@ -130,10 +150,15 @@ namespace VisualProgression.AgePicker
 
         /// <summary>
         /// When the item would show the picture, following Graphic_StackCount.SubGraphicForStackCount and
-        /// Graphic_MealVariants: meal pictures come in three groups (mixed, meat, vegetarian), each by stack size.
+        /// Graphic_MealVariants: meal pictures come in three groups (mixed, meat, vegetarian), each by stack size. For
+        /// four-facing art, the facing.
         /// </summary>
         public static string LabelFor(ThingDef item, int index, int count)
         {
+            if (UsesFacings(item) && index < FacingKeys.Length)
+            {
+                return FacingKeys[index].Translate();
+            }
             Type kind = item.graphicData?.graphicClass;
             if (kind != null && typeof(Graphic_Random).IsAssignableFrom(kind))
             {
@@ -148,6 +173,35 @@ namespace VisualProgression.AgePicker
                 return sizes == 1 ? group : group + ", " + StackLabel(index % sizes, sizes);
             }
             return StackLabel(index, count);
+        }
+
+        // A side filled from the opposite side is drawn mirrored, as the game draws it when the art allows flipping.
+        private static void DrawPicture(Rect rect, List<Texture> pictures, int index, ThingDef item)
+        {
+            Texture picture = pictures[index];
+            bool sidesShared = UsesFacings(item) && item.graphicData.allowFlip && pictures.Count > WestIndex &&
+                pictures[EastIndex] == pictures[WestIndex];
+            bool mirrored = sidesShared && index == MirroredSide(pictures);
+            if (mirrored)
+            {
+                Widgets.DrawTextureFitted(rect, picture, 1f, new Vector2(picture.width, picture.height), MirroredCoords);
+            }
+            else
+            {
+                Widgets.DrawTextureFitted(rect, picture, 1f);
+            }
+        }
+
+        // Which side the game mirrors: east when the shared picture is the west one, otherwise west.
+        private static int MirroredSide(List<Texture> pictures)
+        {
+            string name = pictures[EastIndex].name;
+            return name != null && name.EndsWith("_west", StringComparison.OrdinalIgnoreCase) ? EastIndex : WestIndex;
+        }
+
+        private static bool UsesFacings(ThingDef item)
+        {
+            return item != null && PickRules.UsesFacings(item);
         }
 
         private static string StackLabel(int index, int count)

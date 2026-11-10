@@ -3,7 +3,7 @@
   <VPAP_PickLooks>Pick looks</VPAP_PickLooks>
   <VPAP_Title>Looks for {0}</VPAP_Title>
   <VPAP_Hint>Choose an age on the left, then click a picture to use it there. A look also covers the earlier ages until you give them their own.</VPAP_Hint>
-  <VPAP_NamesOnlyGraphic>This item's art can't come from another mod. Only single, stack and random art can. You can still name it for each age.</VPAP_NamesOnlyGraphic>
+  <VPAP_NamesOnlyGraphic>This art can't come from another mod. Only single, stack, random and four-facing art can, not walls and other art that joins its neighbours. You can still name it for each age.</VPAP_NamesOnlyGraphic>
   <VPAP_NamesOnlyApparel>A pick can't change worn art, so apparel takes names only.</VPAP_NamesOnlyApparel>
   <VPAP_NormalArt>Normal art</VPAP_NormalArt>
   <VPAP_ForThisItem>For this item</VPAP_ForThisItem>
@@ -19,16 +19,21 @@
   <VPAP_MealMixed>Mixed</VPAP_MealMixed>
   <VPAP_MealMeat>Meat</VPAP_MealMeat>
   <VPAP_MealVegetarian>Vegetarian</VPAP_MealVegetarian>
+  <VPAP_FacingSouth>Front</VPAP_FacingSouth>
+  <VPAP_FacingEast>Right</VPAP_FacingEast>
+  <VPAP_FacingNorth>Back</VPAP_FacingNorth>
+  <VPAP_FacingWest>Left</VPAP_FacingWest>
   <VPAP_Name>Name</VPAP_Name>
   <VPAP_ResetAge>Reset this age</VPAP_ResetAge>
   <VPAP_NameSameAs>{0} (same as {1})</VPAP_NameSameAs>
   <VPAP_NameFromPack>{0} (from a pack)</VPAP_NameFromPack>
   <VPAP_NameNormal>{0} (normal)</VPAP_NameNormal>
   <VPAP_RestartNote>Changes apply after a restart.</VPAP_RestartNote>
-  <VPAP_AllItemsTab>All items ({0})</VPAP_AllItemsTab>
+  <VPAP_ItemsTab>Items ({0})</VPAP_ItemsTab>
+  <VPAP_BuildingsTab>Buildings ({0})</VPAP_BuildingsTab>
   <VPAP_ChangedTab>Changed ({0})</VPAP_ChangedTab>
-  <VPAP_NoChangedItems>No items changed yet. Find one under All items.</VPAP_NoChangedItems>
-  <VPAP_NoItemsMatch>No items match.</VPAP_NoItemsMatch>
+  <VPAP_NoChangedItems>Nothing changed yet. Find an item under Items or a building under Buildings.</VPAP_NoChangedItems>
+  <VPAP_NoItemsMatch>Nothing matches.</VPAP_NoItemsMatch>
   <VPAP_Reset>Reset</VPAP_Reset>
   <VPAP_MissingItem>{0} (not loaded)</VPAP_MissingItem>
   <VPAP_ExportAsPack>Export as pack</VPAP_ExportAsPack>
@@ -50,5 +55,5 @@
   <VPAP_UnwritableArt>its art uses {0}, which the export can't write yet</VPAP_UnwritableArt>
   <VPAP_BadPackName>Give the pack a name with letters or digits in it.</VPAP_BadPackName>
   <VPAP_FolderTaken>Your Mods folder already has a different mod in {0}. Choose another name.</VPAP_FolderTaken>
-  <VPAP_PackDescription>Item looks made with {0}.</VPAP_PackDescription>
+  <VPAP_PackDescription>Item and building looks made with {0}.</VPAP_PackDescription>
 </LanguageData>

@@ -7,8 +7,8 @@ using Verse;
 namespace VisualProgression.AgePicker
 {
     /// <summary>
-    /// The mod settings' list of items, every pickable item or only the changed ones, searchable by item or mod name.
-    /// Clicking an item opens its picker.
+    /// The mod settings' list of things to pick looks for: items, buildings, or only the changed ones, searchable by name
+    /// or mod name. Clicking one opens its picker.
     /// </summary>
     public class ItemList
     {
@@ -17,11 +17,12 @@ namespace VisualProgression.AgePicker
 
         private readonly QuickSearchWidget search = new QuickSearchWidget();
         private Vector2 scroll;
-        private bool showChanged;
-        // Every item the picker can open, built on first draw since the defs don't change during a session.
+        private ListTab tab;
+        // Every item and building the picker can open, built on first draw since the defs don't change during a session.
         private List<ListedItem> allItems;
-        // All items matching the search, rebuilt when the search changes.
-        private List<ListedItem> matchingItems;
+        // The items and the buildings matching the search, rebuilt when the search changes.
+        private List<ListedItem> matchingThings;
+        private List<ListedItem> matchingBuildings;
 
         public void Draw(Rect inRect)
         {
@@ -33,7 +34,10 @@ namespace VisualProgression.AgePicker
                     .OrderBy(listed => listed.label)
                     .ToList();
             }
-            matchingItems ??= allItems.Where(Matches).ToList();
+            if (matchingThings == null)
+            {
+                FindMatches();
+            }
 
             Dictionary<string, List<TechLevel>> pickedAges = PickedAges();
             List<ListedItem> changedItems = pickedAges.Keys
@@ -41,13 +45,15 @@ namespace VisualProgression.AgePicker
                 .Where(Matches)
                 .OrderBy(listed => listed.label)
                 .ToList();
-            List<ListedItem> shown = showChanged ? changedItems : matchingItems;
+            List<ListedItem> shown = tab == ListTab.Changed ? changedItems
+                : tab == ListTab.Buildings ? matchingBuildings
+                : matchingThings;
 
             var searchRect = new Rect(inRect.xMax - 260f, inRect.y, 260f, QuickSearchWidget.WidgetHeight);
             search.noResultsMatched = shown.Count == 0;
             search.OnGUI(searchRect, () =>
             {
-                matchingItems = allItems.Where(Matches).ToList();
+                FindMatches();
                 scroll = Vector2.zero;
             });
 
@@ -56,8 +62,10 @@ namespace VisualProgression.AgePicker
                 (restartNote ? inRect.yMax - 30f : inRect.yMax) - inRect.y - TabHeight - 4f);
             var tabs = new List<TabRecord>
             {
-                new TabRecord("VPAP_AllItemsTab".Translate(matchingItems.Count), () => ShowChanged(false), !showChanged),
-                new TabRecord("VPAP_ChangedTab".Translate(changedItems.Count), () => ShowChanged(true), showChanged),
+                new TabRecord("VPAP_ItemsTab".Translate(matchingThings.Count), () => Show(ListTab.Items), tab == ListTab.Items),
+                new TabRecord("VPAP_BuildingsTab".Translate(matchingBuildings.Count), () => Show(ListTab.Buildings),
+                    tab == ListTab.Buildings),
+                new TabRecord("VPAP_ChangedTab".Translate(changedItems.Count), () => Show(ListTab.Changed), tab == ListTab.Changed),
             };
             Widgets.DrawMenuSection(listRect);
             TabDrawer.DrawTabs(listRect, tabs, 200f);
@@ -66,7 +74,7 @@ namespace VisualProgression.AgePicker
             if (shown.Count == 0)
             {
                 GUI.color = ColorLibrary.Grey;
-                Widgets.Label(inner, showChanged && pickedAges.Count == 0
+                Widgets.Label(inner, tab == ListTab.Changed && pickedAges.Count == 0
                     ? "VPAP_NoChangedItems".Translate()
                     : "VPAP_NoItemsMatch".Translate());
                 GUI.color = Color.white;
@@ -84,9 +92,16 @@ namespace VisualProgression.AgePicker
             }
         }
 
-        private void ShowChanged(bool changed)
+        private void FindMatches()
         {
-            showChanged = changed;
+            List<ListedItem> matching = allItems.Where(Matches).ToList();
+            matchingThings = matching.Where(listed => !listed.isBuilding).ToList();
+            matchingBuildings = matching.Where(listed => listed.isBuilding).ToList();
+        }
+
+        private void Show(ListTab shownTab)
+        {
+            tab = shownTab;
             scroll = Vector2.zero;
         }
 
@@ -166,12 +181,20 @@ namespace VisualProgression.AgePicker
                     itemPicks => itemPicks.Select(pick => pick.upToAge).Distinct().OrderBy(age => age).ToList());
         }
 
+        private enum ListTab
+        {
+            Items,
+            Buildings,
+            Changed,
+        }
+
         private class ListedItem
         {
             public readonly string itemName;
             public readonly ThingDef item;
             public readonly string label;
             public readonly string modName;
+            public readonly bool isBuilding;
 
             public ListedItem(string itemName, ThingDef item)
             {
@@ -181,6 +204,7 @@ namespace VisualProgression.AgePicker
                     ? PickedLooks.NormalLabelOf(item) ?? item.defName
                     : "VPAP_MissingItem".Translate(itemName).ToString();
                 modName = item?.modContentPack?.Name;
+                isBuilding = item != null && PickRules.IsBuilding(item);
             }
         }
     }

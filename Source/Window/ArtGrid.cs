@@ -22,7 +22,7 @@ namespace VisualProgression.AgePicker
         private readonly List<GridRow> rows = new List<GridRow>();
         private List<ArtOption> itemArt = new List<ArtOption>();
         private List<ArtOption> found = new List<ArtOption>();
-        private bool folders;
+        private ArtKind kind;
         private int columns = -1;
         private Vector2 scroll;
 
@@ -31,12 +31,12 @@ namespace VisualProgression.AgePicker
             this.item = item;
         }
 
-        /// <summary>The art to show: the item's own, then what the search found, as pictures or as folders.</summary>
-        public void Show(List<ArtOption> itemOptions, List<ArtOption> foundOptions, bool showFolders)
+        /// <summary>The art to show: the item's own, then what the search found, as pictures, folders or facings.</summary>
+        public void Show(List<ArtOption> itemOptions, List<ArtOption> foundOptions, ArtKind shownKind)
         {
             itemArt = itemOptions;
             found = foundOptions;
-            folders = showFolders;
+            kind = shownKind;
             columns = -1;
             scroll = Vector2.zero;
         }
@@ -49,7 +49,7 @@ namespace VisualProgression.AgePicker
             out ArtOption clicked)
         {
             clicked = null;
-            var tile = new Vector2(folders ? FolderTileWidth : PictureTileWidth, ArtHeight + NameBarHeight);
+            var tile = new Vector2(kind == ArtKind.Folder ? FolderTileWidth : PictureTileWidth, ArtHeight + NameBarHeight);
             float width = rect.width - 16f;
             int fitting = Mathf.Max(1, (int)((width + TileGap) / (tile.x + TileGap)));
             if (fitting != columns)
@@ -118,14 +118,16 @@ namespace VisualProgression.AgePicker
         {
             Widgets.DrawMenuSection(rect);
             Rect art = new Rect(rect.x, rect.y, rect.width, ArtHeight).ContractedBy(5f);
-            if (folders)
+            if (kind == ArtKind.Folder)
             {
                 StackPictures.DrawStrip(art, pictures);
                 StackPictures.HoverPanel(rect, pictures, item);
             }
             else if (pictures.Count > 0)
             {
+                // A set of facings shows its front, and every facing while the mouse is over it.
                 Widgets.DrawTextureFitted(art, pictures[0], 1f);
+                StackPictures.HoverPanel(rect, pictures, item);
             }
             var nameBar = new Rect(rect.x, rect.yMax - NameBarHeight, rect.width, NameBarHeight);
             Widgets.DrawBoxSolid(nameBar, NameBarColor);
