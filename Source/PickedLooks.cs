@@ -48,6 +48,11 @@ namespace VisualProgression.AgePicker
                     Warn($"Couldn't make the picks for \"{itemPicks.Key}\", so it keeps its normal looks: " + e);
                 }
             }
+            // At startup this waits for every mod's startup code (ItemSymbolsAtStartup), which a reload doesn't run again.
+            if (hotReload)
+            {
+                LongEventHandler.ExecuteWhenFinished(ItemSymbol.KeepAll);
+            }
         }
 
         private static void MakeForItem(string itemName, List<Pick> itemPicks, bool hotReload)
@@ -159,6 +164,10 @@ namespace VisualProgression.AgePicker
                 look.color = packLook.color;
             }
             DefGenerator.AddImpliedDef(look, hotReload);
+            if (pick.HasArt)
+            {
+                ItemSymbol.KeepLater(item, look, pick.artMod);
+            }
             return look;
         }
 

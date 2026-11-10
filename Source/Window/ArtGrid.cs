@@ -112,15 +112,16 @@ namespace VisualProgression.AgePicker
             if (option == null)
             {
                 string normal = "VPAP_NormalArt".Translate();
-                return DrawTile(rect, normalPictures, normal, normal, normalSelected);
+                return DrawTile(rect, normalPictures, null, normal, normal, normalSelected);
             }
             string name = option.IsFolder ? option.Name + " · " + option.PictureCount : option.Name;
-            return DrawTile(rect, option.Pictures, name, TooltipFor(option), option == selected);
+            return DrawTile(rect, option.Pictures, option.Mod, name, TooltipFor(option), option == selected);
         }
 
         // A framed tile with the art inset and a grey name bar along the bottom, as Worldbuilder draws its choices. The
-        // selection and hover highlights stay inside the frame.
-        private bool DrawTile(Rect rect, List<Texture> pictures, string name, string tooltip, bool selected)
+        // selection and hover highlights stay inside the frame. A null mod is the item's normal art.
+        private bool DrawTile(Rect rect, List<Texture> pictures, ModContentPack artMod, string name, string tooltip,
+            bool selected)
         {
             Widgets.DrawMenuSection(rect);
             Rect art = new Rect(rect.x, rect.y, rect.width, ArtHeight).ContractedBy(5f);
@@ -132,7 +133,7 @@ namespace VisualProgression.AgePicker
             else if (pictures.Count > 0)
             {
                 // A set of facings shows its front, and every facing while the mouse is over it.
-                Widgets.DrawTextureFitted(art, pictures[0], 1f);
+                Widgets.DrawTextureFitted(art, pictures[0], 1f, ItemSymbol.PreviewMaterial(item, artMod, pictures[0]));
                 StackPictures.HoverPanel(rect, pictures, item);
             }
             var nameBar = new Rect(rect.x, rect.yMax - NameBarHeight, rect.width, NameBarHeight);

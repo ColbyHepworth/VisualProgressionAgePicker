@@ -21,7 +21,8 @@ such as Vanilla Factions Expanded - Tribals.
    matches** is art from any mod whose file or folder name shares a word with the item, best matches first. Items with
    stack art, like meals, choose between whole folders, which change picture as the stack grows, and single pictures,
    which show at every stack size. Hover a folder to see when each picture is used. Buildings and furniture that turn
-   take art drawn from all four sides. Hover one to see each side.
+   take art drawn from all four sides. Hover one to see each side. Some mods draw a symbol over their pictures, like
+   the body part Bionic icons draws on each box. Art from that mod keeps the item's symbol.
 4. Type a name to rename the item in that age. A name alone keeps the art the age already had. A look covers its age
    and the earlier ones down to the next look, so a Medieval look also shows in the Neolithic age.
 5. Close the window and restart the game.

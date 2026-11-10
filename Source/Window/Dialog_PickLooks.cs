@@ -138,7 +138,7 @@ namespace VisualProgression.AgePicker
             Widgets.DrawMenuSection(preview);
             if (look.Pictures.Count > 0)
             {
-                Widgets.DrawTextureFitted(preview.ContractedBy(PreviewSize * 0.05f), look.Pictures[0], 1f);
+                Widgets.DrawTextureFitted(preview.ContractedBy(PreviewSize * 0.05f), look.Pictures[0], 1f, look.Material);
             }
             y += PreviewSize + 4f;
             Text.Anchor = TextAnchor.UpperCenter;
@@ -172,7 +172,7 @@ namespace VisualProgression.AgePicker
             AgeLook look = LookFor(age);
             if (look.Pictures.Count > 0)
             {
-                Widgets.DrawTextureFitted(new Rect(rect.x + 4f, rect.y + 4f, 32f, 32f), look.Pictures[0], 1f);
+                Widgets.DrawTextureFitted(new Rect(rect.x + 4f, rect.y + 4f, 32f, 32f), look.Pictures[0], 1f, look.Material);
             }
             GUI.color = AgeColors.For(age);
             Widgets.Label(new Rect(rect.x + 42f, rect.y + 2f, rect.width - 46f, 22f), age.ToStringHuman().CapitalizeFirst());
@@ -342,23 +342,37 @@ namespace VisualProgression.AgePicker
             int rowIndex = AgeLookTable.RowFor(rowAges, (int)age);
             if (rowIndex < 0)
             {
-                return new AgeLook(NormalPictures(), PickedLooks.NormalLabelOf(item), LookSource.Normal, age);
+                List<Texture> normal = NormalPictures();
+                return new AgeLook(normal, NormalMaterial(normal), PickedLooks.NormalLabelOf(item), LookSource.Normal, age);
             }
             var rowAge = (TechLevel)rowAges[rowIndex];
             List<Texture> art;
+            Material material = null;
             string name;
             LookSource source;
             if (rowIndex < picks.Count)
             {
                 Pick pick = picks[rowIndex];
                 // A pick without art keeps the art the age had, as PickedLooks does.
-                if (pick.HasArt)
+                ArtOption option = pick.HasArt ? PickedOption(pick) : null;
+                if (option != null)
                 {
-                    art = PickedPictures(pick);
+                    art = option.Pictures;
+                    material = ItemSymbol.PreviewMaterial(item, option.Mod, art.FirstOrDefault());
+                }
+                else if (pick.HasArt || pick.normalArt)
+                {
+                    art = NormalPictures();
+                    material = NormalMaterial(art);
                 }
                 else
                 {
-                    art = pick.normalArt ? NormalPictures() : PackPicturesCovering(age) ?? NormalPictures();
+                    art = PackPicturesCovering(age);
+                    if (art == null)
+                    {
+                        art = NormalPictures();
+                        material = NormalMaterial(art);
+                    }
                 }
                 name = pick.name ?? PickedLooks.NormalLabelOf(item);
                 source = LookSource.Pick;
@@ -372,7 +386,7 @@ namespace VisualProgression.AgePicker
                 name = style.overrideLabel ?? PickedLooks.NormalLabelOf(item);
                 source = LookSource.Pack;
             }
-            return new AgeLook(art, name, source, rowAge);
+            return new AgeLook(art, material, name, source, rowAge);
         }
 
         // The pictures of the pack's look covering the age (the normal art for a look with only a name), or null when no
@@ -394,15 +408,15 @@ namespace VisualProgression.AgePicker
             return pick.artPath.NullOrEmpty() ? item.graphicData.texPath : pick.artPath;
         }
 
-        private List<Texture> PickedPictures(Pick pick)
-        {
-            return PickedOption(pick)?.Pictures ?? NormalPictures();
-        }
-
         // The item's own art, which a look doesn't change; the type's icon follows the colony's age.
         private List<Texture> NormalPictures()
         {
             return StackPictures.Of(item.graphicData.Graphic);
+        }
+
+        private Material NormalMaterial(List<Texture> normalPictures)
+        {
+            return ItemSymbol.PreviewMaterial(item, null, normalPictures.FirstOrDefault());
         }
 
         private enum LookSource
@@ -414,15 +428,19 @@ namespace VisualProgression.AgePicker
 
         private readonly struct AgeLook
         {
-            public AgeLook(List<Texture> pictures, string name, LookSource source, TechLevel rowAge)
+            public AgeLook(List<Texture> pictures, Material material, string name, LookSource source, TechLevel rowAge)
             {
                 Pictures = (pictures ?? new List<Texture>()).Where(picture => picture != null).ToList();
+                Material = material;
                 Name = name ?? "";
                 Source = source;
                 RowAge = rowAge;
             }
 
             public List<Texture> Pictures { get; }
+
+            /// <summary>The material to draw the first picture with, such as one with the item's symbol, or null.</summary>
+            public Material Material { get; }
             public string Name { get; }
             public LookSource Source { get; }
 
