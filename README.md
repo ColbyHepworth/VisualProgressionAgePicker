@@ -34,6 +34,11 @@ and the game logs an error for each of them when the save loads.
 Apparel, walls, fences and other buildings whose art joins their neighbours take names only. The picker shows art as
 its files draw it, without the colour of the material a building is made from.
 
+Some mods ship parts of a building's art, like the chair backs Graphic Chair Overhaul 2 draws over a seated pawn. The
+picker offers those like whole art, so check the preview. With Graphic Chair Overhaul 2, a chair whose picked art has
+no matching back logs one error when it's placed, with nothing wrong on screen. Furniture another mod hides from the
+build menu is still listed.
+
 ## Sharing your picks as a pack
 
 Click **Export as pack** in the mod settings, give the pack a name and an author, and click **Export**. It's written to
