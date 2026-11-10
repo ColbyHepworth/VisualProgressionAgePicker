@@ -3,7 +3,7 @@
   <name>Visual Progression: Age Picker</name>
   <author>Groovy</author>
   <packageId>groovy.visualprogression.agepicker</packageId>
-  <modVersion>1.0</modVersion>
+  <modVersion>1.1</modVersion>
   <url>https://github.com/ColbyHepworth/VisualProgressionAgePicker</url>
   <supportedVersions>
     <li>1.7</li>
@@ -12,7 +12,7 @@
 
 Built on Visual Progression Framework. Something also has to raise your colony's tech level, such as Vanilla Factions Expanded - Tribals.
 
-Preview and screenshot art: Medieval Overhaul, Vanilla Cooking Expanded and RimWorld.</description>
+Preview and screenshot art: Medieval Overhaul, Vanilla Cooking Expanded, Vanilla Cooking Expanded - Haute, Vanilla Furniture Expanded - Factory, Alpha Random and RimWorld.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>

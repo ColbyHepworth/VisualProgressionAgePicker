@@ -63,5 +63,6 @@ differently from the item's own folder, the missing ones show the normal art.
 
 ## License
 
-MIT. The preview image and the images in `Workshop/` show art from Medieval Overhaul, Vanilla Cooking Expanded and
-RimWorld, which belongs to their authors and isn't covered by this license.
+MIT. The preview image and the images in `Workshop/` show art from Medieval Overhaul, Vanilla Cooking Expanded,
+Vanilla Cooking Expanded - Haute, Vanilla Furniture Expanded - Factory, Alpha Random and RimWorld, which belongs to their
+authors and isn't covered by this license.
