@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -20,7 +21,7 @@ namespace VisualProgression.AgePicker
         private ListTab tab;
         // Every item and building the picker can open, built on first draw since the defs don't change during a session.
         private List<ListedItem> allItems;
-        // The items and the buildings matching the search, rebuilt when the search changes.
+        // The items and the buildings matching the search, best matches first, rebuilt when the search changes.
         private List<ListedItem> matchingThings;
         private List<ListedItem> matchingBuildings;
 
@@ -45,6 +46,7 @@ namespace VisualProgression.AgePicker
                 .Where(Matches)
                 .OrderBy(listed => listed.label)
                 .ToList();
+            changedItems = BestFirst(changedItems);
             List<ListedItem> shown = tab == ListTab.Changed ? changedItems
                 : tab == ListTab.Buildings ? matchingBuildings
                 : matchingThings;
@@ -94,7 +96,7 @@ namespace VisualProgression.AgePicker
 
         private void FindMatches()
         {
-            List<ListedItem> matching = allItems.Where(Matches).ToList();
+            List<ListedItem> matching = BestFirst(allItems.Where(Matches));
             matchingThings = matching.Where(listed => !listed.isBuilding).ToList();
             matchingBuildings = matching.Where(listed => listed.isBuilding).ToList();
         }
@@ -109,6 +111,44 @@ namespace VisualProgression.AgePicker
         {
             return search.filter.Text.NullOrEmpty() || search.filter.Matches(listed.label) ||
                 (listed.modName != null && search.filter.Matches(listed.modName));
+        }
+
+        // Sorted by how well the name matches the search. OrderBy is stable, so each rank keeps the alphabetical order.
+        private List<ListedItem> BestFirst(IEnumerable<ListedItem> matching)
+        {
+            string text = search.filter.Text.Trim();
+            if (text.NullOrEmpty())
+            {
+                return matching.ToList();
+            }
+            return matching.OrderBy(listed => SearchRank(listed.label, text)).ToList();
+        }
+
+        // 0 the whole name, 1 the start of the name, 2 the start of a word in it, 3 anywhere in it, 4 only the mod's name.
+        private static int SearchRank(string label, string text)
+        {
+            const StringComparison IgnoreCase = StringComparison.InvariantCultureIgnoreCase;
+            if (string.Equals(label, text, IgnoreCase))
+            {
+                return 0;
+            }
+            int at = label.IndexOf(text, IgnoreCase);
+            if (at < 0)
+            {
+                return 4;
+            }
+            if (at == 0)
+            {
+                return 1;
+            }
+            for (; at >= 0; at = label.IndexOf(text, at + 1, IgnoreCase))
+            {
+                if (!char.IsLetterOrDigit(label[at - 1]))
+                {
+                    return 2;
+                }
+            }
+            return 3;
         }
 
         // Only the rows in view are drawn, since the full list runs to thousands.

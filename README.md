@@ -25,8 +25,8 @@ such as Vanilla Factions Expanded - Tribals.
    and the earlier ones down to the next look, so a Medieval look also shows in the Neolithic age.
 5. Close the window and restart the game.
 
-Search the mod settings by a name or a mod's name. **Changed** lists what you've picked looks for, with their ages and
-a button to reset them.
+Search the mod settings by a name or a mod's name, with the best matches first. **Changed**
+lists what you've picked looks for, with their ages and a button to reset them.
 
 Resetting a pick, or removing the mod, is safe for your save. Things made with that pick go back to their normal art,
 and the game logs an error for each of them when the save loads.
