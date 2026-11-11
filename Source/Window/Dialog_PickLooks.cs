@@ -331,8 +331,8 @@ namespace VisualProgression.AgePicker
         // earlier ones, over the packs' rows with the picks in place of theirs.
         private AgeLook LookFor(TechLevel age)
         {
-            // A pick replaces the packs' rows for its age, as PickedLooks does.
-            List<Pick> picks = picksByAge.Values.Where(pick => !pick.IsEmpty).ToList();
+            // A pick replaces the packs' rows for its age, without art from a mod that isn't running, as PickedLooks does.
+            List<Pick> picks = picksByAge.Values.Select(PickedLooks.ForThisGame).Where(pick => !pick.IsEmpty).ToList();
             List<AgeLookRow> packRows = PickedLooks.PackRowsFor(item)
                 .Where(row => row?.style != null && picks.All(pick => pick.upToAge != row.upToAge))
                 .ToList();

@@ -125,9 +125,19 @@ namespace VisualProgression.AgePicker
             return pick.HasArt ? ArtFromMod(item, pick) : CopyOf(keptPackLook?.graphicData ?? item.graphicData);
         }
 
-        private static ThingStyleDef LookFor(ThingDef item, Pick pick, bool hotReload)
+        private static ThingStyleDef LookFor(ThingDef item, Pick savedPick, bool hotReload)
         {
-            string pickName = $"The pick for {item.defName} up to {pick.upToAge}";
+            string pickName = $"The pick for {item.defName} up to {savedPick.upToAge}";
+            Pick pick = ForThisGame(savedPick);
+            if (pick != savedPick)
+            {
+                string fallback = pick.IsEmpty ? "the pick is skipped" : "that age keeps the art it has without the pick";
+                Warn($"{pickName} takes art from \"{savedPick.artMod}\", which isn't active, so {fallback}.");
+                if (pick.IsEmpty)
+                {
+                    return null;
+                }
+            }
             string problem = ProblemWith(item, pick);
             if (problem != null)
             {
@@ -169,6 +179,31 @@ namespace VisualProgression.AgePicker
                 ItemSymbol.KeepLater(item, look, pick.artMod);
             }
             return look;
+        }
+
+        /// <summary>
+        /// The pick as this game makes it: without its art when the art's mod isn't running, so its age falls back to the
+        /// pack's look or the item's normal art. The saved pick keeps the art for when the mod is back.
+        /// </summary>
+        public static Pick ForThisGame(Pick pick)
+        {
+            if (!pick.HasArt || IsRunning(pick.artMod))
+            {
+                return pick;
+            }
+            return new Pick
+            {
+                item = pick.item,
+                upToAge = pick.upToAge,
+                name = pick.name,
+                normalArt = pick.normalArt,
+            };
+        }
+
+        private static bool IsRunning(string packageId)
+        {
+            return LoadedModManager.RunningModsListForReading.Any(mod =>
+                string.Equals(mod.PackageIdPlayerFacing, packageId, StringComparison.OrdinalIgnoreCase));
         }
 
         private static GraphicData ArtFromMod(ThingDef item, Pick pick)
