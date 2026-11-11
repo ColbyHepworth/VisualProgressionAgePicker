@@ -191,7 +191,7 @@ namespace VisualProgression.AgePicker
         private static GraphicData CopyOf(GraphicData source)
         {
             GraphicData copy = source is GraphicData_FromMod fromMod
-                ? new GraphicData_FromMod { fromMod = fromMod.fromMod }
+                ? fromMod.CopyArtSource()
                 : new GraphicData();
             copy.CopyFrom(source);
             return copy;

@@ -21,7 +21,7 @@ namespace VisualProgression.AgePicker
             .ToList();
 
         /// <summary>
-        /// A graphicData element: the Class and fromMod of art from a chosen mod, then every field whose value differs
+        /// A graphicData element: the Class, fromMod and skipMods of art from a chosen mod, then every field whose value differs
         /// from a new GraphicData's. Settings made of several values, like a building's shadow and damage areas, are
         /// written as nested elements, as vanilla's furniture styles write them. Check <see cref="UnwritableField"/> first.
         /// </summary>
@@ -34,6 +34,10 @@ namespace VisualProgression.AgePicker
                 if (!fromModData.fromMod.NullOrEmpty())
                 {
                     element.Add(new XElement("fromMod", fromModData.fromMod));
+                }
+                if (!fromModData.skipMods.NullOrEmpty())
+                {
+                    element.Add(new XElement("skipMods", fromModData.skipMods.Select(packageId => new XElement("li", packageId))));
                 }
             }
             foreach (FieldInfo field in SetFields(data))

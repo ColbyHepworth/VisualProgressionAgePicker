@@ -4,7 +4,7 @@ A RimWorld 1.7 mod. Pick what your items, buildings and furniture look like and 
 using the art of any mod in your mod list. Things made in that age get your pick and keep it, the way
 [Visual Progression Framework](https://github.com/ColbyHepworth/VisualProgressionFramework) packs work.
 
-Requires Harmony and Visual Progression Framework 1.2 or later. Something also has to raise your colony's tech level,
+Requires Harmony and Visual Progression Framework 1.4 or later. Something also has to raise your colony's tech level,
 such as Vanilla Factions Expanded - Tribals.
 
 [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3836880283)
