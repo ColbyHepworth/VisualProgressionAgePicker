@@ -74,5 +74,21 @@ namespace VisualProgression.AgePicker
             return item.graphicData?.graphicClass != null &&
                 typeof(Graphic_Collection).IsAssignableFrom(item.graphicData.graphicClass);
         }
+
+        /// <summary>True when the item's art is one picture that art from a chosen mod can replace.</summary>
+        public static bool UsesOnePicture(ThingDef item)
+        {
+            return ArtBlockFor(item) == ArtBlock.None &&
+                typeof(Graphic_Single).IsAssignableFrom(item.graphicData.graphicClass);
+        }
+
+        /// <summary>
+        /// True when the picker offers the item folders of pictures, one per stack size, in place of its one picture: an
+        /// item that stacks. An item that can't stack would only ever show the folder's first picture.
+        /// </summary>
+        public static bool TakesStackArt(ThingDef item)
+        {
+            return item.category == ThingCategory.Item && item.stackLimit > 1 && UsesOnePicture(item);
+        }
     }
 }

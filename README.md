@@ -19,7 +19,7 @@ such as Vanilla Factions Expanded - Tribals.
    that. Search it by file, folder or mod name, with the best matches first. When a retexture moved the item to art
    of its own, the item's art from before is offered too. It draws at the retexture's size and colour. Under **Likely
    matches** is art from any mod whose file or folder name shares a word with the item, best matches first. Items with
-   stack art, like meals, choose between whole folders, which change picture as the stack grows, and single pictures,
+   stack art, like meals, and items that stack, like milk, choose between whole folders, which change picture as the stack grows, and single pictures,
    which show at every stack size. Hover a folder to see when each picture is used. Buildings and furniture that turn
    take art drawn from all four sides. Hover one to see each side. Some mods draw a symbol over their pictures, like
    the body part Bionic icons draws on each box. Art from that mod keeps the item's symbol.

@@ -272,14 +272,21 @@ namespace VisualProgression.AgePicker
             return mod?.Find(path, kind);
         }
 
-        /// <summary>The kind of art a pick on the item uses: facings, a folder, or a single picture.</summary>
-        public static ArtKind KindFor(ThingDef item, bool singlePicture)
+        /// <summary>
+        /// The kind of art a pick on the item uses: facings, a folder, or a single picture. Without a pick, the kind of
+        /// the item's own art.
+        /// </summary>
+        public static ArtKind KindFor(ThingDef item, Pick pick)
         {
             if (PickRules.UsesFacings(item))
             {
                 return ArtKind.Facings;
             }
-            return PickRules.UsesFolder(item) && !singlePicture ? ArtKind.Folder : ArtKind.Picture;
+            if (PickRules.UsesFolder(item))
+            {
+                return pick != null && pick.singlePicture ? ArtKind.Picture : ArtKind.Folder;
+            }
+            return pick != null && PickedLooks.IsStackArt(item, pick) ? ArtKind.Folder : ArtKind.Picture;
         }
 
         /// <summary>The mod's own picture at the path, even where another mod replaces it, or null if it can't be read.</summary>

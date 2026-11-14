@@ -26,6 +26,9 @@ namespace VisualProgression.AgePicker
         /// <summary>True when the art is one picture on an item whose art is a folder, so it shows at every stack size.</summary>
         public bool singlePicture;
 
+        /// <summary>True when the art is a folder on an item whose art is one picture, so it shows a picture per stack size.</summary>
+        public bool stackPictures;
+
         /// <summary>True when the age uses the item's normal art even where a pack's look would cover it.</summary>
         public bool normalArt;
 
@@ -44,6 +47,7 @@ namespace VisualProgression.AgePicker
             Scribe_Values.Look(ref artPath, "artPath");
             Scribe_Values.Look(ref name, "name");
             Scribe_Values.Look(ref singlePicture, "singlePicture");
+            Scribe_Values.Look(ref stackPictures, "stackPictures");
             Scribe_Values.Look(ref normalArt, "normalArt");
         }
     }

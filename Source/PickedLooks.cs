@@ -174,7 +174,8 @@ namespace VisualProgression.AgePicker
                 look.color = packLook.color;
             }
             DefGenerator.AddImpliedDef(look, hotReload);
-            if (pick.HasArt)
+            // A symbol is shaped for one picture, so a folder of stack pictures doesn't take it.
+            if (pick.HasArt && !IsStackArt(item, pick))
             {
                 ItemSymbol.KeepLater(item, look, pick.artMod);
             }
@@ -206,6 +207,16 @@ namespace VisualProgression.AgePicker
                 string.Equals(mod.PackageIdPlayerFacing, packageId, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// True when the pick puts a folder of pictures, one per stack size, on an item whose art is one picture. The saved
+        /// pick decides, not whether the item stacks now: a mod can change an item's stack limit after the looks are made,
+        /// and a folder read as one picture would be a missing texture.
+        /// </summary>
+        public static bool IsStackArt(ThingDef item, Pick pick)
+        {
+            return pick.HasArt && pick.stackPictures && PickRules.UsesOnePicture(item);
+        }
+
         private static GraphicData ArtFromMod(ThingDef item, Pick pick)
         {
             var art = new GraphicData_FromMod();
@@ -219,6 +230,10 @@ namespace VisualProgression.AgePicker
             {
                 // One picture at every stack size; a thing draws its style's own graphic data.
                 art.graphicClass = typeof(Graphic_Single);
+            }
+            else if (IsStackArt(item, pick))
+            {
+                art.graphicClass = typeof(Graphic_StackCount);
             }
             return art;
         }

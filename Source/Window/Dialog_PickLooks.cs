@@ -28,14 +28,15 @@ namespace VisualProgression.AgePicker
         private readonly ThingDef item;
         private readonly ArtBlock artBlock;
         private readonly bool usesFolder;
+        private readonly bool offersFolders;
         private readonly Dictionary<TechLevel, Pick> picksByAge;
         private readonly QuickSearchWidget search = new QuickSearchWidget();
         private readonly ArtGrid grid;
         private readonly Dictionary<ArtKind, List<ArtOption>> forItem = new Dictionary<ArtKind, List<ArtOption>>();
         private readonly Dictionary<ArtKind, List<ArtOption>> likely = new Dictionary<ArtKind, List<ArtOption>>();
         private readonly Dictionary<ArtKind, List<ArtOption>> found = new Dictionary<ArtKind, List<ArtOption>>();
-        // Stack, random and meal items choose between whole folders and single pictures; four-facing art offers sets of
-        // facings; other items offer pictures.
+        // Stack, random and meal items choose between whole folders and single pictures, and so do single-picture items
+        // that stack; four-facing art offers sets of facings; other items offer pictures.
         private ArtKind kind;
         private TechLevel selectedAge;
         private bool changed;
@@ -45,6 +46,7 @@ namespace VisualProgression.AgePicker
             this.item = item;
             artBlock = PickRules.ArtBlockFor(item);
             usesFolder = PickRules.UsesFolder(item);
+            offersFolders = usesFolder || PickRules.TakesStackArt(item);
             grid = new ArtGrid(item);
             picksByAge = new Dictionary<TechLevel, Pick>();
             // The game keeps the last pick for an age, as PickedLooks does.
@@ -53,7 +55,7 @@ namespace VisualProgression.AgePicker
                 picksByAge[pick.upToAge] = new Pick
                 {
                     item = pick.item, upToAge = pick.upToAge, artMod = pick.artMod, artPath = pick.artPath, name = pick.name,
-                    singlePicture = pick.singlePicture, normalArt = pick.normalArt,
+                    singlePicture = pick.singlePicture, stackPictures = pick.stackPictures, normalArt = pick.normalArt,
                 };
             }
             selectedAge = StartingAge();
@@ -70,7 +72,7 @@ namespace VisualProgression.AgePicker
             base.PreOpen();
             if (artBlock == ArtBlock.None)
             {
-                kind = ArtCatalog.KindFor(item, singlePicture: false);
+                kind = ArtCatalog.KindFor(item, null);
                 foreach (ArtKind offered in OfferedKinds())
                 {
                     forItem[offered] = ArtCatalog.ForItem(item, offered);
@@ -231,7 +233,7 @@ namespace VisualProgression.AgePicker
                 return;
             }
 
-            if (usesFolder)
+            if (offersFolders)
             {
                 DrawKindChip(new Rect(rect.x, rect.y, 190f, 28f), ArtKind.Folder, "VPAP_WholeFolders");
                 DrawKindChip(new Rect(rect.x + 200f, rect.y, 190f, 28f), ArtKind.Picture, "VPAP_SinglePictures");
@@ -258,7 +260,7 @@ namespace VisualProgression.AgePicker
             {
                 return new[] { ArtKind.Facings };
             }
-            return usesFolder ? new[] { ArtKind.Folder, ArtKind.Picture } : new[] { ArtKind.Picture };
+            return offersFolders ? new[] { ArtKind.Folder, ArtKind.Picture } : new[] { ArtKind.Picture };
         }
 
         // Runs the search for every kind offered, so each chip can show its count.
@@ -300,6 +302,7 @@ namespace VisualProgression.AgePicker
                 pick.artMod = null;
                 pick.artPath = null;
                 pick.singlePicture = false;
+                pick.stackPictures = false;
                 pick.normalArt = true;
             }
             else
@@ -308,13 +311,14 @@ namespace VisualProgression.AgePicker
                 pick.artMod = option.Mod.PackageIdPlayerFacing;
                 pick.artPath = option.Path == item.graphicData.texPath?.TrimEnd('/') ? null : option.Path;
                 pick.singlePicture = usesFolder && !option.IsFolder;
+                pick.stackPictures = !usesFolder && option.IsFolder;
             }
             changed = true;
         }
 
         private ArtOption PickedOption(Pick pick)
         {
-            return ArtCatalog.Find(pick.artMod, PickedPath(pick), ArtCatalog.KindFor(item, pick.singlePicture));
+            return ArtCatalog.Find(pick.artMod, PickedPath(pick), ArtCatalog.KindFor(item, pick));
         }
 
         private Pick PickAt(TechLevel age)
@@ -358,7 +362,10 @@ namespace VisualProgression.AgePicker
                 if (option != null)
                 {
                     art = option.Pictures;
-                    material = ItemSymbol.PreviewMaterial(item, option.Mod, art.FirstOrDefault());
+                    // A folder of stack pictures doesn't take the item's symbol, as PickedLooks makes it.
+                    material = PickedLooks.IsStackArt(item, pick)
+                        ? null
+                        : ItemSymbol.PreviewMaterial(item, option.Mod, art.FirstOrDefault());
                 }
                 else if (pick.HasArt || pick.normalArt)
                 {
