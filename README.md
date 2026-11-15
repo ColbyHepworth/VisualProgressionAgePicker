@@ -4,7 +4,7 @@ A RimWorld 1.7 mod. Pick what your items, buildings and furniture look like and 
 using the art of any mod in your mod list. Things made in that age get your pick and keep it, the way
 [Visual Progression Framework](https://github.com/ColbyHepworth/VisualProgressionFramework) packs work.
 
-Requires Harmony and Visual Progression Framework 1.4 or later. Something also has to raise your colony's tech level,
+Requires Harmony and Visual Progression Framework 1.6 or later. Something also has to raise your colony's tech level,
 such as Vanilla Factions Expanded - Tribals.
 
 [Steam Workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=3836880283)
@@ -19,10 +19,11 @@ such as Vanilla Factions Expanded - Tribals.
    that. Search it by file, folder or mod name, with the best matches first. When a retexture moved the item to art
    of its own, the item's art from before is offered too. It draws at the retexture's size and colour. Under **Likely
    matches** is art from any mod whose file or folder name shares a word with the item, best matches first. Items with
-   stack art, like meals, and items that stack, like milk, choose between whole folders, which change picture as the stack grows, and single pictures,
-   which show at every stack size. Hover a folder to see when each picture is used. Buildings and furniture that turn
-   take art drawn from all four sides. Hover one to see each side. Some mods draw a symbol over their pictures, like
-   the body part Bionic icons draws on each box. Art from that mod keeps the item's symbol.
+   stack art, like meals, and items that stack, like milk, choose between whole folders, which change picture as the
+   stack grows, and single pictures, which show at every stack size. Hover a folder to see when each picture is used.
+   Buildings and furniture that turn take art drawn from all four sides. Hover one to see each side. Some mods draw a
+   symbol over their pictures, like the body part Bionic icons draws on each box. Art from that mod keeps the item's
+   symbol.
 4. Type a name to rename the item in that age. A name alone keeps the art the age already had. A look covers its age
    and the earlier ones down to the next look, so a Medieval look also shows in the Neolithic age.
 5. Close the window and restart the game.
